@@ -34,6 +34,20 @@ namespace CrusaderWars.twbattle
         // never popup-spammed when the telemetry backend stays unreachable across battles.
         private static bool _backendUnreachablePopupShown = false;
 
+        /// <summary>Display name of the Total War game for the current battle
+        /// ("Total War: Rome 2" | "Total War: Attila"), used in user-facing messages.</summary>
+        private static string CurrentGameDisplayName =>
+            UnitMappers_BETA.ResolvedBattleGameType == "Rome2" ? "Total War: Rome 2" : "Total War: Attila";
+
+        /// <summary>Process name of the Total War game for the current battle
+        /// ("Rome2" | "Attila"), used for process checks.</summary>
+        private static string CurrentGameProcessName =>
+            UnitMappers_BETA.ResolvedBattleGameType == "Rome2" ? "Rome2" : "Attila";
+
+        /// <summary>Battle results log path for the current battle's game.</summary>
+        private static string CurrentGameLogPath =>
+            ModOptions.GetLogPath(UnitMappers_BETA.ResolvedBattleGameType);
+
         public class AutofixState
         {
             public List<string> ProblematicUnitKeys { get; set; } = new List<string>();
@@ -156,7 +170,7 @@ namespace CrusaderWars.twbattle
                     BattleDetails.ChangeBattleDetails(left_side_total, right_side_total, left_side_combat_side, right_side[0].CombatSide);
 
                     await Games.CloseTotalWarProcess();
-                    form.UpdateLoadingScreenMessage("Creating battle in Total War: Attila...");
+                    form.UpdateLoadingScreenMessage($"Creating battle in {CurrentGameDisplayName}...");
 
                     //Create Remaining Soldiers Script
                     Program.Logger.Debug("Creating battle script...");
@@ -225,7 +239,7 @@ namespace CrusaderWars.twbattle
                         if (displayableUnmappedUnits.Any())
                         {
                             var sb = new System.Text.StringBuilder();
-                            sb.AppendLine("Warning: Some CK3 units could not be mapped to Total War: Attila units and were dropped from the battle.");
+                            sb.AppendLine($"Warning: Some CK3 units could not be mapped to {CurrentGameDisplayName} units and were dropped from the battle.");
                             sb.AppendLine("This usually means a unit from a CK3 mod is not supported by the active Unit Mapper playthrough.");
                             sb.AppendLine();
                             sb.AppendLine("Unmapped Units:");
@@ -527,14 +541,14 @@ namespace CrusaderWars.twbattle
                     }
                     //Open Total War Attila
                     Program.Logger.Debug("Starting Total War: Attila process via shortcut...");
-HomePage.Games.StartTotalWarProcess(form._gameType);
+HomePage.Games.StartTotalWarProcess(form.GameType);
                 }
                 catch (Exception ex)
                 {
                     Program.Logger.Debug($"Error starting Attila: {ex.Message}");
                     form.Show();
                     form.CloseLoadingScreen();
-                    MessageBox.Show(form, "Couldn't find 'Attila.exe'. Change the Total War Attila path. ", "Crusader Conflicts: Path Error",
+                    MessageBox.Show(form, $"Couldn't find the {CurrentGameDisplayName} executable. Change the {CurrentGameDisplayName} path. ", "Crusader Conflicts: Path Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                     form.infoLabel.Text = "Ready to start!";
                     if (ModOptions.CloseCK3DuringBattle())
@@ -620,13 +634,13 @@ HomePage.Games.StartTotalWarProcess(form._gameType);
             //                       Battle Results                     |
             //-----------------------------------------------------------
 
-            string attilaLogPath = Properties.Settings.Default.VAR_log_attila;
+            string attilaLogPath = CurrentGameLogPath;
 
             bool battleEnded = false;
             bool badUnitsSubmitted = false; // Send bad-units telemetry only once, on the first crash before any autofix.
 
-            form.infoLabel.Text = "Waiting for TW:Attila battle to end...";
-            form.Text = "Crusader Conflicts (Waiting for TW:Attila battle to end...)";
+            form.infoLabel.Text = $"Waiting for {CurrentGameDisplayName} battle to end...";
+            form.Text = $"Crusader Conflicts (Waiting for {CurrentGameDisplayName} battle to end...)";
             Program.Logger.Debug("Waiting for TW:Attila battle to end...");
 
             form.ExecuteButton.Enabled = false;
@@ -642,7 +656,7 @@ HomePage.Games.StartTotalWarProcess(form._gameType);
                     return false; // Indicate cancellation
                 }
                 // Check if Attila process is still running
-                if (Process.GetProcessesByName("Attila").Length == 0)
+                if (Process.GetProcessesByName(CurrentGameProcessName).Length == 0)
                 {
                     Program.Logger.Debug("Attila process not found. Checking if it was a crash.");
 
@@ -673,7 +687,7 @@ HomePage.Games.StartTotalWarProcess(form._gameType);
                             form.Invoke((MethodInvoker)delegate
                             {
                                 userConfirmedCrash = MessageBox.Show(form,
-                                    "Did Total War: Attila crash while loading the battle (after the main menu)?",
+                                    $"Did {CurrentGameDisplayName} crash while loading the battle (after the main menu)?",
                                     "Crusader Conflicts: Crash Report",
                                     MessageBoxButtons.YesNo,
                                     MessageBoxIcon.Question) == DialogResult.Yes;
@@ -1066,12 +1080,12 @@ HomePage.Games.StartTotalWarProcess(form._gameType);
                 if (battleEnded)
                 {
                     Program.Logger.Debug("Processing TW:Attila battle results.");
-                    ModOptions.CloseAttila();
+                    ModOptions.CloseTotalWarGame();
 
-                    form.infoLabel.Text = "Processing TW:Attila battle results...";
+                    form.infoLabel.Text = $"Processing {CurrentGameDisplayName} battle results...";
                     form.Text = "Crusader Conflicts (Processing results)";
 
-                    string path_log_attila = Properties.Settings.Default.VAR_log_attila;
+                    string path_log_attila = CurrentGameLogPath;
 
                     // --- START: Capture pre-battle state for report ---
                     // Removed deployedCounts as it will be derived from UnitCasualitiesReport
@@ -1426,7 +1440,7 @@ HomePage.Games.StartTotalWarProcess(form._gameType);
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Error retrieving TW:Attila battle results: {ex.Message}");
-                MessageBox.Show(form, $"Error retrieving TW:Attila battle results: {ex.Message}", "Crusader Conflicts: TW:Attila Battle Results Error",
+                MessageBox.Show(form, $"Error retrieving {CurrentGameDisplayName} battle results: {ex.Message}", $"Crusader Conflicts: {CurrentGameDisplayName} Battle Results Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                 await Games.CloseTotalWarProcess();
                 if (ModOptions.CloseCK3DuringBattle())
@@ -1975,7 +1989,7 @@ HomePage.Games.StartTotalWarProcess(form._gameType);
                 report.WallDamage = "N/A";
 
                 // Try to get actual siege results
-                string path_log_attila = Properties.Settings.Default.VAR_log_attila;
+                string path_log_attila = CurrentGameLogPath;
                 var (siegeOutcome, wallDamage) = BattleResultReader.GetSiegeOutcome(path_log_attila, "attacker", "defender");
                 report.SiegeResult = siegeOutcome;
                 report.WallDamage = wallDamage;

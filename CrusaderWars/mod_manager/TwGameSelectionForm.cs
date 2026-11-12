@@ -27,6 +27,8 @@ namespace CrusaderWars.mod_manager
             public string ScreenName { get; set; } = string.Empty;
             public bool AttilaSelected { get; set; }
             public bool Rome2Selected { get; set; }
+            public List<string> AttilaScreenNames { get; set; } = new List<string>();
+            public List<string> Rome2ScreenNames { get; set; } = new List<string>();
 
             public string Label => StartYear == 0 && EndYear >= 9999 ? "Any Year" : $"{StartYear} AD \u2013 {EndYear} AD";
         }

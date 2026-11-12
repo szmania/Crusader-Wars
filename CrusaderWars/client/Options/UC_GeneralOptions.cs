@@ -25,6 +25,9 @@ namespace CrusaderWars.client
         [SupportedOSPlatform("windows")]
         public string GetCloseAttila() => OptionSelection_CloseAttila.SelectedItem?.ToString() ?? "Enabled";
         [SupportedOSPlatform("windows")]
+        // "Close Total War game after battle" shares the same dropdown as the legacy CloseAttila option.
+        public string GetCloseTotalWarGame() => GetCloseAttila();
+        [SupportedOSPlatform("windows")]
         public string GetFullArmies() => OptionSelection_FullArmies.SelectedItem?.ToString() ?? "Disabled";
         [SupportedOSPlatform("windows")]
         public string GetTimeLimit() => OptionSelection_TimeLimit.SelectedItem?.ToString() ?? "Enabled";
@@ -48,6 +51,8 @@ namespace CrusaderWars.client
         public void SetCloseCK3(string value) { OptionSelection_CloseCK3.SelectedItem = value; }
         [SupportedOSPlatform("windows")]
         public void SetCloseAttila(string value) { OptionSelection_CloseAttila.SelectedItem = value; }
+        [SupportedOSPlatform("windows")]
+        public void SetCloseTotalWarGame(string value) { SetCloseAttila(value); }
         [SupportedOSPlatform("windows")]
         public void SetFullArmies(string value) { OptionSelection_FullArmies.SelectedItem = value; }
         [SupportedOSPlatform("windows")]

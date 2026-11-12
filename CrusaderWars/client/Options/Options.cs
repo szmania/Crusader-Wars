@@ -351,6 +351,9 @@ namespace CrusaderWars
                 ModOptions.optionsValuesCollection.Clear();
                 var CloseCK3_Value = GetOptionValue(xmlDoc, "CloseCK3", "Enabled");
                 var CloseAttila_Value = GetOptionValue(xmlDoc, "CloseAttila", "Enabled");
+                // "Close Total War game after battle" supersedes the legacy CloseAttila option;
+                // seed it from the legacy value so existing configs keep their setting.
+                var CloseTotalWarGame_Value = GetOptionValue(xmlDoc, "CloseTotalWarGame", CloseAttila_Value);
                 var FullArmies_Value = GetOptionValue(xmlDoc, "FullArmies", "Disabled");
                 var TimeLimit_Value = GetOptionValue(xmlDoc, "TimeLimit", "Enabled");
                 var BattleMapsSize_Value = GetOptionValue(xmlDoc, "BattleMapsSize", "Dynamic");
@@ -401,6 +404,7 @@ namespace CrusaderWars
 
                 ModOptions.optionsValuesCollection.Add("CloseCK3", CloseCK3_Value);
                 ModOptions.optionsValuesCollection.Add("CloseAttila", CloseAttila_Value);
+                ModOptions.optionsValuesCollection.Add("CloseTotalWarGame", CloseTotalWarGame_Value);
                 ModOptions.optionsValuesCollection.Add("FullArmies", FullArmies_Value);
                 ModOptions.optionsValuesCollection.Add("TimeLimit", TimeLimit_Value);
                 ModOptions.optionsValuesCollection.Add("BattleMapsSize", BattleMapsSize_Value);
@@ -476,6 +480,7 @@ namespace CrusaderWars
 
                 AddDefaultOption(xmlDoc, root, "CloseCK3", "Enabled");
                 AddDefaultOption(xmlDoc, root, "CloseAttila", "Enabled");
+                AddDefaultOption(xmlDoc, root, "CloseTotalWarGame", "Enabled");
                 AddDefaultOption(xmlDoc, root, "FullArmies", "Disabled");
                 AddDefaultOption(xmlDoc, root, "TimeLimit", "Enabled");
                 AddDefaultOption(xmlDoc, root, "BattleMapsSize", "Dynamic");
@@ -570,7 +575,11 @@ namespace CrusaderWars
                 if (General_Tab != null)
                 {
                     General_Tab.SetCloseCK3(ModOptions.optionsValuesCollection["CloseCK3"]);
-                    General_Tab.SetCloseAttila(ModOptions.optionsValuesCollection["CloseAttila"]);
+                    // Prefer the new "Close Total War game after battle" value; fall back to the
+                    // legacy CloseAttila value for older configs that predate the rename.
+                    General_Tab.SetCloseAttila(ModOptions.optionsValuesCollection.TryGetValue("CloseTotalWarGame", out var closeTwGame)
+                        ? closeTwGame
+                        : ModOptions.optionsValuesCollection["CloseAttila"]);
                     General_Tab.SetFullArmies(ModOptions.optionsValuesCollection["FullArmies"]);
                     General_Tab.SetTimeLimit(ModOptions.optionsValuesCollection["TimeLimit"]);
                     General_Tab.SetBattleMapsSize(ModOptions.optionsValuesCollection["BattleMapsSize"]);
@@ -767,6 +776,9 @@ namespace CrusaderWars
 
                     var CloseAttila_Node = xmlDoc.SelectSingleNode("//Option [@name='CloseAttila']");
                     if (CloseAttila_Node != null) CloseAttila_Node.InnerText = General_Tab.GetCloseAttila();
+
+                    var CloseTotalWarGame_Node = xmlDoc.SelectSingleNode("//Option [@name='CloseTotalWarGame']");
+                    if (CloseTotalWarGame_Node != null) CloseTotalWarGame_Node.InnerText = General_Tab.GetCloseAttila();
 
                     var FullArmies_Node = xmlDoc.SelectSingleNode("//Option [@name='FullArmies']");
                     if (FullArmies_Node != null) FullArmies_Node.InnerText = General_Tab.GetFullArmies();

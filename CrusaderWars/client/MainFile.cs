@@ -61,7 +61,11 @@ namespace CrusaderWars
 
         private int _myVariable = 0;
         private bool _lastUnitMappersEnabled = true;
-public string _gameType = "attila"; // Default to Attila; resolved from active playthrough
+        public string _gameType = "attila"; // Default to Attila; resolved from active playthrough
+
+        /// <summary>Public accessor for the resolved battle game type ("attila" | "rome_2").
+        /// Exposed so BattleProcessor can launch the correct Total War executable.</summary>
+        public string GameType => _gameType;
 
         private void CreateRequiredDirectories()
         {
@@ -1553,10 +1557,14 @@ private void CreateGameShortcut()
             };
             string shortcutPath = @".\" + shortcutName;
 
-            string targetPath = Properties.Settings.Default.VAR_attila_path;
-            string workingDirectory = Properties.Settings.Default.VAR_attila_path.Replace(@"\Attila.exe", "");
+            // Resolve the target game executable based on the active battle game type
+            string gameExe = _gameType == "rome_2" ? "Rome2.exe" : "Attila.exe";
+            string gamePath = _gameType == "rome_2" ? Properties.Settings.Default.VAR_rome2_path : Properties.Settings.Default.VAR_attila_path;
+            string gameDisplayName = _gameType == "rome_2" ? "Total War: Rome 2" : "Total War: Attila";
+            string targetPath = gamePath;
+            string workingDirectory = gamePath.Replace($@"\{gameExe}", "");
             string arguments = "used_mods_cc.txt";
-            string description = "Shortcut with all user enabled mods and required unit mappers mods for Total War: Attila";
+            string description = $"Shortcut with all user enabled mods and required unit mappers mods for {gameDisplayName}";
 
             bool needsUpdate = true;
 
@@ -2652,8 +2660,8 @@ private void CreateGameShortcut()
             ExecuteButton.BackgroundImage = Properties.Resources.start_new_disabled;
 
             // Update status label immediately
-            infoLabel.Text = "Preparing TW:Attila battle...";
-            this.Text = "Crusader Conflicts (Preparing TW:Attila battle...)";
+            infoLabel.Text = $"Preparing {(_gameType == "rome_2" ? "Total War: Rome 2" : "Total War: Attila")} battle...";
+            this.Text = $"Crusader Conflicts (Preparing {(_gameType == "rome_2" ? "Total War: Rome 2" : "Total War: Attila")} battle...)";
             await Task.Delay(50); // Allow UI to update
 
             // Ensure Attila shortcut exists
@@ -2724,15 +2732,17 @@ private void CreateGameShortcut()
 
             bool regenerateAndRestart = true; // Default behavior
 
-            Process[] attilaProcesses = Process.GetProcessesByName("Attila");
+            string twProcessName = _gameType == "rome_2" ? "Rome2" : "Attila";
+            string twDisplayName = _gameType == "rome_2" ? "Total War: Rome 2" : "Total War: Attila";
+            Process[] attilaProcesses = Process.GetProcessesByName(twProcessName);
             if (attilaProcesses.Length > 0)
             {
-                string message = "Total War: Attila is already running.\n\n" +
+                string message = $"{twDisplayName} is already running.\n\n" +
                                  "Do you want to restart it to ensure the latest battle data is loaded?\n\n" +
-                                 "• Yes: Restart Attila. (Recommended to retry the battle)\n" +
+                                 $"• Yes: Restart {twDisplayName}. (Recommended to retry the battle)\n" +
                                  "• No: Continue with the current session. (If the CC launcher closed unexpectedly)\n" +
                                  "• Cancel: Do nothing.";
-                string title = "Attila is Running";
+                string title = $"{twDisplayName} is Running";
                 DialogResult result = MessageBox.Show(message, title, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 
                 if (result == DialogResult.Yes)
@@ -3052,13 +3062,14 @@ private void CreateGameShortcut()
 
 public static void StartTotalWarProcess(string gameType)
         {
-            Program.Logger.Debug("Starting Total War: Attila process...");
+            string gameDisplayName = gameType == "rome_2" ? "Total War: Rome 2" : "Total War: Attila";
+            Program.Logger.Debug($"Starting {gameDisplayName} process...");
             string shortcutPath;
             bool isLinux = new client.LinuxSetup.Services.LinuxEnvironmentDetector().IsRunningOnLinux();
 
             if (isLinux)
             {
-                shortcutPath = @".\data\attila\Attila CC.lnk";
+                shortcutPath = gameType == "rome_2" ? @".\data\attila\Rome2 CC.lnk" : @".\data\attila\Attila CC.lnk";
                 Program.Logger.Debug($"Using Linux shortcut path: {shortcutPath}");
             }
             else
@@ -3096,8 +3107,11 @@ public static void StartTotalWarProcess(string gameType)
 
 public async static Task CloseTotalWarProcess()
             {
-                Program.Logger.Debug("Closing Total War: Attila process...");
-                Process[] process_attila = Process.GetProcessesByName("Attila");
+                // Kill whichever Total War game the current battle resolved to (Attila or Rome 2).
+                string processName = unit_mapper.UnitMappers_BETA.ResolvedBattleGameType == "Rome2" ? "Rome2" : "Attila";
+                string gameDisplayName = processName == "Rome2" ? "Total War: Rome 2" : "Total War: Attila";
+                Program.Logger.Debug($"Closing {gameDisplayName} process...");
+                Process[] process_attila = Process.GetProcessesByName(processName);
                 foreach (Process worker in process_attila)
                 {
                     worker.Kill();
@@ -3106,7 +3120,7 @@ public async static Task CloseTotalWarProcess()
                 }
 
                 await Task.Delay(1);
-                Program.Logger.Debug("Total War: Attila process closed.");
+                Program.Logger.Debug($"{gameDisplayName} process closed.");
             }
         };
 

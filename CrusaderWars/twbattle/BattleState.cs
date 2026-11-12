@@ -1,12 +1,13 @@
 using System.IO;
 using System.Collections.Generic; // Added for List<string>
 using System.Text.Json; // Added for JSON serialization
+using System.Linq; // Added for Enumerable.Any in legacy state migration
 
 namespace CrusaderWars.twbattle
 {
     public static class BattleState
     {
-        private static string StateFolder => @".\data\attila_battle";
+        private static string StateFolder => @".\data\tw_battle";
         private static string StateFile => Path.Combine(StateFolder, "battle_state.txt");
         private static string LogSnippetFile => Path.Combine(StateFolder, "battle_log_snippet.txt");
         public static bool IsSiegeBattle { get; set; }
@@ -51,6 +52,11 @@ namespace CrusaderWars.twbattle
 
         static BattleState()
         {
+            // One-time migration: the state folder was previously named 'attila_battle'.
+            // Move any existing state files into the new 'tw_battle' folder so an in-progress
+            // battle (or saved manual replacements) survives the rename.
+            MigrateLegacyStateFolder();
+
             // Ensure directory exists
             if (!Directory.Exists(StateFolder))
             {
@@ -60,6 +66,35 @@ namespace CrusaderWars.twbattle
 
             // Load persistent settings on startup
             LoadPersistentBattleSettings();
+        }
+
+        /// <summary>Moves the legacy 'data\attila_battle' folder contents into 'data\tw_battle'.
+        /// No-op when the legacy folder is absent. Existing files in the new folder are kept
+        /// (the legacy file is only moved when the destination does not already exist).</summary>
+        private static void MigrateLegacyStateFolder()
+        {
+            const string legacyFolder = @".\data\attila_battle";
+            if (!Directory.Exists(legacyFolder)) return;
+
+            try
+            {
+                Directory.CreateDirectory(StateFolder);
+                foreach (var file in Directory.GetFiles(legacyFolder))
+                {
+                    string dest = Path.Combine(StateFolder, Path.GetFileName(file));
+                    if (File.Exists(dest)) continue; // never clobber newer state
+                    File.Move(file, dest);
+                }
+                // Remove the legacy folder if it is now empty.
+                if (!Directory.EnumerateFileSystemEntries(legacyFolder).Any())
+                    Directory.Delete(legacyFolder);
+                Program.Logger.Debug("BattleState: migrated legacy 'attila_battle' state folder to 'tw_battle'.");
+            }
+            catch (Exception ex)
+            {
+                // Migration failure must never block startup; the new folder is created below.
+                Program.Logger.Debug($"BattleState: legacy state folder migration failed: {ex.Message}");
+            }
         }
 
         public static bool IsBattleInProgress()
