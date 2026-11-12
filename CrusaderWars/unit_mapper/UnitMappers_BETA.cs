@@ -480,7 +480,7 @@ private static Dictionary<string, (string X, string Y, List<string>? orientation
         public static string SchemasDir => Path.Combine(UnitMappersRootDir, "schemas");
 
         /// <summary>
-        /// Maps a game type identifier ("Attila"/"Rome2") to its unit mapper subdirectory
+        /// Maps a game type identifier ("attila"/"rome_2") to its unit mapper subdirectory
         /// name under <see cref="UnitMappersRootDir"/> ("attila"/"rome_2"). Unknown game
         /// types fall back to "attila" to preserve legacy behaviour.
         /// </summary>
@@ -488,7 +488,7 @@ private static Dictionary<string, (string X, string Y, List<string>? orientation
         {
             return gameType switch
             {
-                "Rome2" => "rome_2",
+                "rome_2" => "rome_2",
                 _ => "attila",
             };
         }
@@ -1394,23 +1394,167 @@ return byTag.Values.ToList();
         }
 
         [SupportedOSPlatform("windows")]
-        public static List<string> GetUnitMapperModFromTagAndTimePeriod(string tag, List<string> activeSubmods, string gameType)
+        /// <summary>Game type resolved for the current battle ("attila" | "rome_2").
+        /// Set by <see cref="GetUnitMapperModFromTagAndTimePeriod"/> via
+        /// <see cref="ResolveMapperForBattle"/>; the default "attila" preserves legacy behaviour
+        /// for reads that happen before a battle is processed.</summary>
+        public static string ResolvedBattleGameType { get; private set; } = "attila";
+
+        /// <summary>
+        /// Resolves which game's mapper folders cover a playthrough tag in a given year
+        /// (design 5.15.4 / 5.15.5). Scans both game subdirectories, keeps folders whose
+        /// TimePeriod.xml range covers the year, then applies:
+        ///  1. A user selection from MapperSelections.xml wins only when it is itself still
+        ///     valid (its folder covers the year AND that game's exe is configured) — stale
+        ///     selections self-heal back to D1 instead of producing a broken battle.
+        ///  2. Otherwise an overlap (both games covering) resolves to Attila silently (D1),
+        ///     with a Debug log recording the implicit decision.
+        /// Returns "Attila" with an empty list when nothing covers, so callers keep the
+        /// existing "no valid configuration for year" error path.
+        /// </summary>
+        public static (string gameType, List<string> coveringFolderPaths) ResolveMapperForBattle(string tag, int year)
+        {
+            var attilaDirs = ScanMapperFolders("attila");
+            var rome2Dirs = ScanMapperFolders("rome_2");
+
+            // Year coverage first, then per-game availability (design 5.15.5 step C).
+            var attilaYearCovering = FilterCoveringFolders(attilaDirs, year);
+            var rome2YearCovering = FilterCoveringFolders(rome2Dirs, year);
+
+            bool attilaAvailable = IsGameConfigured("attila");
+            bool rome2Available = IsGameConfigured("rome_2");
+
+            List<string> attilaCovering = attilaAvailable ? attilaYearCovering : new List<string>();
+            List<string> rome2Covering = rome2Available ? rome2YearCovering : new List<string>();
+
+            if (!string.IsNullOrEmpty(tag))
+            {
+                // Step F: user selection wins only while it is currently valid (5.15.5).
+                foreach (var (game, folder) in MapperSelectionsStore.GetSelectionsForTag(tag))
+                {
+                    bool isRome2 = game.Equals("rome_2", StringComparison.OrdinalIgnoreCase);
+                    string normalized = isRome2 ? "rome_2" : "attila";
+                    var gameCovering = isRome2 ? rome2Covering : attilaCovering;
+
+                    var match = gameCovering.FirstOrDefault(d =>
+                        Path.GetFileName(d).Equals(folder, StringComparison.OrdinalIgnoreCase));
+                    if (match != null)
+                    {
+                        // Aggregate every covering folder of the resolved game (step K).
+                        Program.Logger.Debug(
+                            $"Mapper selection honored for '{tag}': year {year} -> {normalized} folder '{folder}'.");
+                        return (normalized, gameCovering);
+                    }
+
+                    if (isRome2 && !rome2Available)
+                        Program.Logger.Debug(
+                            $"Mapper selection for '{tag}' names Rome2 folder '{folder}' but Rome 2 is not configured; falling back to D1.");
+                }
+            }
+
+            bool attilaCovers = attilaCovering.Any();
+            bool rome2Covers = rome2Covering.Any();
+
+            if (attilaCovers && rome2Covers)
+            {
+                Program.Logger.Debug(
+                    $"Mapper overlap in year {year} for playthrough '{tag}' resolved to Attila (no/expired selection).");
+                return ("attila", attilaCovering);
+            }
+            if (attilaCovers) return ("attila", attilaCovering);
+            if (rome2Covers) return ("rome_2", rome2Covering);
+
+            // Nothing available and covering: fall back to year-only coverage so the existing
+            // configuration-error popup fires from ProcessMapper instead of the battle silently
+            // losing its mapper (mirrors pre-5.15.5 behaviour when a game exe was unset).
+            if (attilaYearCovering.Any() && rome2YearCovering.Any()) return ("attila", attilaYearCovering);
+            if (attilaYearCovering.Any()) return ("attila", attilaYearCovering);
+            if (rome2YearCovering.Any()) return ("rome_2", rome2YearCovering);
+
+            return ("attila", new List<string>());
+        }
+
+        /// <summary>Folders directly under the game's mapper subdirectory (empty when absent).</summary>
+        private static List<string> ScanMapperFolders(string subDir)
+        {
+            string subDirPath = Path.Combine(UnitMappersRootDir, subDir);
+            return Directory.Exists(subDirPath)
+                ? Directory.GetDirectories(subDirPath).ToList()
+                : new List<string>();
+        }
+
+        /// <summary>Filters mapper folders to those whose TimePeriod.xml range covers the year.
+        /// Missing or unparseable dates mean "any year", matching <see cref="ProcessMapper"/>.</summary>
+        private static List<string> FilterCoveringFolders(List<string> folders, int year)
+        {
+            var result = new List<string>();
+            foreach (var mapper in folders)
+            {
+                string timePeriodPath = Path.Combine(mapper, "Time Period.xml");
+                if (!File.Exists(timePeriodPath))
+                    timePeriodPath = Path.Combine(mapper, "TimePeriod.xml");
+                if (!File.Exists(timePeriodPath)) continue;
+
+                try
+                {
+                    var xmlDocument = new XmlDocument();
+                    xmlDocument.Load(timePeriodPath);
+                    if (xmlDocument.DocumentElement == null) continue;
+
+                    string startYearStr = xmlDocument.SelectSingleNode("//StartDate")?.InnerText ?? "Default";
+                    string endYearStr = xmlDocument.SelectSingleNode("//EndDate")?.InnerText ?? "Default";
+
+                    int startYear = 0, endYear = 9999;
+                    if (!int.TryParse(startYearStr, out startYear)) startYear = 0;
+                    if (!int.TryParse(endYearStr, out endYear)) endYear = 9999;
+
+                    if (year >= startYear && year <= endYear) result.Add(mapper);
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error reading time period for mapper '{mapper}': {ex.Message}");
+                }
+            }
+            return result;
+        }
+
+        /// <summary>True when the game's executable path is set and names the expected exe,
+        /// reusing GameService.ValidatePath (no new check invented — design 5.15.5).</summary>
+        private static bool IsGameConfigured(string game)
+        {
+            try
+            {
+                var service = CrusaderWars.games.GameServiceFactory.GetGameService(game);
+                return service.ValidatePath(service.GetGamePath());
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"IsGameConfigured('{game}') check failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        public static List<string> GetUnitMapperModFromTagAndTimePeriod(string tag, List<string> activeSubmods)
         {
             ActivePlaythroughTag = tag;
             AvailableSubmods.Clear();
             List<string> requiredMods = new List<string>();
 
-            // Scan the game-specific subdirectory first, then the other game's subdirectory,
-            // so a blended playthrough (same tag in attila/ and rome_2/) aggregates mods from both.
-            string primarySubDir = GetMapperSubDir(gameType);
-            string otherSubDir = primarySubDir == "attila" ? "rome_2" : "attila";
+            // 5.15.4: resolve the battle's game from (tag, Date.Year, MapperSelections) and scan
+            // ONLY that game's subdirectory. Fixes the same-year double-load bug: both games'
+            // packs can no longer be activated for one battle, and LoadedUnitMapper_FolderPath /
+            // Terrains can no longer be clobbered by the other game's last-processed folder.
+            var (resolvedGame, _) = ResolveMapperForBattle(tag, Date.Year);
+            ResolvedBattleGameType = resolvedGame;
+            string resolvedSubDir = GetMapperSubDir(resolvedGame);
             var unit_mappers_folder = new List<string>();
-            foreach (var subDir in new[] { primarySubDir, otherSubDir })
-            {
-                string subDirPath = Path.Combine(UnitMappersRootDir, subDir);
-                if (Directory.Exists(subDirPath))
-                    unit_mappers_folder.AddRange(Directory.GetDirectories(subDirPath));
-            }
+            string resolvedSubDirPath = Path.Combine(UnitMappersRootDir, resolvedSubDir);
+            if (Directory.Exists(resolvedSubDirPath))
+                unit_mappers_folder.AddRange(Directory.GetDirectories(resolvedSubDirPath));
+
+            Program.Logger.Debug(
+                $"GetUnitMapperModFromTagAndTimePeriod: tag '{tag}', year {Date.Year} resolved to {resolvedGame} ({unit_mappers_folder.Count} folder(s) scanned).");
+
             if (tag == "Custom")
             {
                 string customMapperTag = ModOptions.GetSelectedCustomMapper();
@@ -3309,7 +3453,7 @@ return byTag.Values.ToList();
 
         public static void SetMapperImage()
         {
-            string destination_path = Directory.GetCurrentDirectory() + @"\data\battle files\campaign_maps\main_attila_map\main_attila_map.png";
+            string destination_path = Directory.GetCurrentDirectory() + (UnitMappers_BETA.ResolvedBattleGameType == "rome_2" ? @"\data\rome_2_battle_files\campaign_maps\main_rome_map\main_rome_map.png" : @"\data\attila_battle_files\campaign_maps\main_attila_map\main_attila_map.png");
             try
             {
                 if (LoadedUnitMapper_FolderPath == null)
@@ -3336,7 +3480,7 @@ return byTag.Values.ToList();
             {
                 Program.Logger.Debug($"Error setting mapper image: {ex.Message}. Using default image.");
                 // In case of error or no image found, use default image
-                string default_image_path = Directory.GetCurrentDirectory() + "\\settings\\main_attila_map.png";
+                string default_image_path = Directory.GetCurrentDirectory() + (UnitMappers_BETA.ResolvedBattleGameType == "rome_2" ? "\\settings\\main_rome_map.png" : "\\settings\\main_attila_map.png");
                 File.Copy(default_image_path, destination_path, true);
                 return;
             }

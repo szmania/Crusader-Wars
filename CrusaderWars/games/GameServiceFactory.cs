@@ -17,8 +17,8 @@ namespace CrusaderWars.games
         {
             return gameType switch
             {
-                "Attila" => _attilaService.Value,
-                "Rome2" => _rome2Service.Value,
+                "attila" => _attilaService.Value,
+                "rome_2" => _rome2Service.Value,
                 _ => throw new ArgumentException($"Unknown game type: {gameType}", nameof(gameType))
             };
         }
@@ -42,7 +42,7 @@ namespace CrusaderWars.games
         public static string ResolveGameTypeFromPlaythrough(string playthroughTag)
         {
             if (string.IsNullOrEmpty(playthroughTag))
-                return "Attila"; // Default
+                return "attila"; // Default
 
 // Fast-path for the known legacy tags (avoids a filesystem scan).
             switch (playthroughTag)
@@ -52,9 +52,9 @@ namespace CrusaderWars.games
                 case "RealmsInExile":
                 case "AGOT":
                 case "BookmarksPlus":
-                    return "Attila";
+                    return "attila";
                 case "BronzeAgeReborn":
-                    return "Rome2";
+                    return "rome_2";
                 case "Custom":
                     return ResolveCustomPlaythroughGameType();
             }
@@ -66,9 +66,9 @@ namespace CrusaderWars.games
 
         /// <summary>
         /// Resolves the game type for a playthrough tag by scanning the unit mapper
-        /// subdirectories. Returns "Rome2" when the tag exists only under rome_2/,
-        /// "Attila" when it exists only under attila/, "Attila" when it exists in
-        /// both (blended playthroughs default to Attila), and "Attila"
+        /// subdirectories. Returns "rome_2" when the tag exists only under rome_2/,
+        /// "Attila" when it exists only under attila/, "attila" when it exists in
+        /// both (blended playthroughs default to attila), and "Attila"
         /// as the legacy default when the tag is found in neither.
         /// </summary>
         private static string ResolveGameTypeFromMapperFolders(string playthroughTag)
@@ -77,10 +77,10 @@ namespace CrusaderWars.games
             bool inRome2 = TagExistsInMapperSubDir(playthroughTag, "rome_2");
 
             // Blended (present in both) and Attila-only both resolve to Attila; only a
-            // Rome 2-only tag resolves to Rome2. Unknown tags fall through to Attila.
+            // Rome 2-only tag resolves to rome_2. Unknown tags fall through to Attila.
             if (inRome2 && !inAttila)
-                return "Rome2";
-            return "Attila";
+                return "rome_2";
+            return "attila";
         }
 
         /// <summary>
@@ -108,11 +108,11 @@ namespace CrusaderWars.games
         {
             string customMapperTag = ModOptions.GetSelectedCustomMapper();
             if (string.IsNullOrEmpty(customMapperTag))
-                return "Attila"; // Default
+                return "attila"; // Default
 
             // Search in both attila/ and rome_2/ directories
             string unitMappersBaseDir = CrusaderWars.unit_mapper.UnitMappers_BETA.UnitMappersRootDir;
-            
+
             // Check Rome 2 first
             string rome2Dir = Path.Combine(unitMappersBaseDir, "rome_2");
             if (Directory.Exists(rome2Dir))
@@ -120,9 +120,9 @@ namespace CrusaderWars.games
                 foreach (var dir in Directory.GetDirectories(rome2Dir))
                 {
                     string tagFile = Path.Combine(dir, "tag.txt");
-                    if (File.Exists(tagFile) && 
+                    if (File.Exists(tagFile) &&
                         File.ReadAllText(tagFile).Trim().Equals(customMapperTag, StringComparison.OrdinalIgnoreCase))
-                        return "Rome2";
+                        return "rome_2";
                 }
             }
 
@@ -133,9 +133,9 @@ namespace CrusaderWars.games
                 foreach (var dir in Directory.GetDirectories(attilaDir))
                 {
                     string tagFile = Path.Combine(dir, "tag.txt");
-                    if (File.Exists(tagFile) && 
+                    if (File.Exists(tagFile) &&
                         File.ReadAllText(tagFile).Trim().Equals(customMapperTag, StringComparison.OrdinalIgnoreCase))
-                        return "Attila";
+                        return "attila";
                 }
             }
 
@@ -145,13 +145,13 @@ namespace CrusaderWars.games
                 foreach (var dir in Directory.GetDirectories(unitMappersBaseDir))
                 {
                     string tagFile = Path.Combine(dir, "tag.txt");
-                    if (File.Exists(tagFile) && 
+                    if (File.Exists(tagFile) &&
                         File.ReadAllText(tagFile).Trim().Equals(customMapperTag, StringComparison.OrdinalIgnoreCase))
-                        return "Attila"; // Legacy is Attila
+                        return "attila"; // Legacy is Attila
                 }
             }
 
-            return "Attila"; // Default
+            return "attila"; // Default
         }
     }
 }

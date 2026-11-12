@@ -13,8 +13,8 @@
                       <xs:attribute name="Game" use="required">
                         <xs:simpleType>
                           <xs:restriction base="xs:string">
-                            <xs:enumeration value="Attila"/>
-                            <xs:enumeration value="Rome2"/>
+                            <xs:enumeration value="attila"/>
+                            <xs:enumeration value="rome_2"/>
                           </xs:restriction>
                         </xs:simpleType>
                       </xs:attribute>

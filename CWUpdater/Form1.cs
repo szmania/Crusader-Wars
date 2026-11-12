@@ -598,12 +598,14 @@ del ""%~f0""
 
                             string unitMappersDir = Path.Combine(applicationPath, "unit_mappers");
                             string settingsDir = Path.Combine(applicationPath, "settings");
-                            string battleFilesDir = Path.Combine(applicationPath, "data", "battle files");
+                            string battleFilesDir = Path.Combine(applicationPath, "data", "attila_battle_files");
+                            string rome2BattleFilesDir = Path.Combine(applicationPath, "data", "rome_2_battle_files");
                             string saveFileDataDir = Path.Combine(applicationPath, "data", "save_file_data");
 
                             if (destinationPath.StartsWith(unitMappersDir, StringComparison.OrdinalIgnoreCase) ||
                                 destinationPath.StartsWith(settingsDir, StringComparison.OrdinalIgnoreCase) ||
                                 destinationPath.StartsWith(battleFilesDir, StringComparison.OrdinalIgnoreCase) ||
+                                destinationPath.StartsWith(rome2BattleFilesDir, StringComparison.OrdinalIgnoreCase) ||
                                 destinationPath.StartsWith(saveFileDataDir, StringComparison.OrdinalIgnoreCase))
                             {
                                 Logger.Log($"Skipping overwrite of file in protected directory: {finalRelativePath}");
@@ -1036,7 +1038,8 @@ del ""%~f0""
             {
                 string settingsDir = Path.Combine(applicationPath, "settings");
                 string unitMappersDir = Path.Combine(applicationPath, "unit_mappers");
-                string battleFilesDir = Path.Combine(applicationPath, "data", "battle files");
+                string battleFilesDir = Path.Combine(applicationPath, "data", "attila_battle_files");
+                string rome2BattleFilesDir = Path.Combine(applicationPath, "data", "rome_2_battle_files");
                 string saveFileDataDir = Path.Combine(applicationPath, "data", "save_file_data");
 
                 var existingFiles = Directory.GetFiles(applicationPath, "*", SearchOption.AllDirectories);
@@ -1049,6 +1052,7 @@ del ""%~f0""
                         file.StartsWith(settingsDir, StringComparison.OrdinalIgnoreCase) ||
                         file.StartsWith(unitMappersDir, StringComparison.OrdinalIgnoreCase) ||
                         file.StartsWith(battleFilesDir, StringComparison.OrdinalIgnoreCase) ||
+                        file.StartsWith(rome2BattleFilesDir, StringComparison.OrdinalIgnoreCase) ||
                         file.StartsWith(saveFileDataDir, StringComparison.OrdinalIgnoreCase))
                         continue;
 
@@ -1074,6 +1078,7 @@ del ""%~f0""
                         dir.StartsWith(settingsDir, StringComparison.OrdinalIgnoreCase) ||
                         dir.StartsWith(unitMappersDir, StringComparison.OrdinalIgnoreCase) ||
                         dir.StartsWith(battleFilesDir, StringComparison.OrdinalIgnoreCase) ||
+                        dir.StartsWith(rome2BattleFilesDir, StringComparison.OrdinalIgnoreCase) ||
                         dir.StartsWith(saveFileDataDir, StringComparison.OrdinalIgnoreCase))
                         continue;
 

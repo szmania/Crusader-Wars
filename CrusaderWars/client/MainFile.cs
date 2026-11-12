@@ -1038,7 +1038,7 @@ var modsCollection = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(active
                     VerificationResult verificationResult;
                     try
                     {
-                        verificationResult = await Task.Run(() => AttilaModManager.VerifyModFiles(modsToVerify, progress, _gameType == "attila" ? "Attila" : _gameType));
+                        verificationResult = await Task.Run(() => AttilaModManager.VerifyModFiles(modsToVerify, progress, _gameType));
                     }
                     finally
                     {
@@ -1131,6 +1131,8 @@ var modsCollection = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(active
             playthroughNameLabel = new Label();
             playthroughSubmodsTitleLabel = new Label();
             playthroughSubmodsListLabel = new Label();
+            playthroughGameMappingTitleLabel = new Label();
+            playthroughGameMappingListLabel = new Label();
 
             // Panel
             playthroughPanel.SuspendLayout();
@@ -1249,8 +1251,7 @@ var modsCollection = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(active
             if (!string.IsNullOrEmpty(activePlaythroughTag))
             {
                 string playthroughFolderPath = "";
-                string unitMappersDir = UnitMappers_BETA.AttilaMappersDir;
-                if (Directory.Exists(unitMappersDir))
+                if (Directory.Exists(UnitMappers_BETA.UnitMappersRootDir))
                 {
                     string tagToFind = activePlaythroughTag;
                     if (activePlaythroughTag == "Custom")
@@ -1260,7 +1261,10 @@ var modsCollection = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(active
                     }
 
                     // Find the directory whose tag.txt matches the tagToFind
-                    foreach (var dir in Directory.GetDirectories(unitMappersDir))
+                    // Scan BOTH game subdirectories: a rome_2-only playthrough has no folder
+                    // under attila/ and would otherwise be treated as "not selected".
+                    foreach (var dir in UnitMappers_BETA.GetMapperDirectories("attila")
+                        .Concat(UnitMappers_BETA.GetMapperDirectories("rome_2")))
                     {
                         string tagFile = Path.Combine(dir, "tag.txt");
                         if (File.Exists(tagFile))
@@ -1385,6 +1389,7 @@ userFriendlyName = $"Custom ({ModOptions.GetSelectedCustomMapper()})";
                     playthroughSubmodsTitleLabel.Visible = false;
                     playthroughSubmodsListLabel.Visible = false;
                     lastBottom = playthroughNameLabel.Bottom;
+                }
 
                 // Total War game per era (year-range -> game mapping).
                 try
@@ -1418,7 +1423,6 @@ userFriendlyName = $"Custom ({ModOptions.GetSelectedCustomMapper()})";
 
                 playthroughPanel.Size = new Size(280, lastBottom + 10);
                 }
-            }
         }
 
         private Version ParseVersionString(string? versionString, string versionType) // Made versionString nullable
@@ -2388,10 +2392,10 @@ private void CreateGameShortcut()
                                 Program.Logger.Debug("Setting playthrough...");
                                 SetPlaythrough(); // sets _gameType from ResolvedBattleGameType (5.15.4)
                                 Program.Logger.Debug($"Reading installed mods for game type: {_gameType}...");
-                                AttilaModManager.ReadInstalledMods(_gameType == "attila" ? "Attila" : _gameType);
+                                AttilaModManager.ReadInstalledMods(_gameType);
                                 UpdateLoadingScreenUnitMapperMessage(UnitMappers_BETA.GetLoadedUnitMapperString(_gameType));
                                 Program.Logger.Debug($"Creating user mods file for game type: {_gameType}...");
-                                AttilaModManager.CreateUserModsFile(_gameType == "attila" ? "Attila" : _gameType);
+                                AttilaModManager.CreateUserModsFile(_gameType);
                             }
                         }
                         catch (Exception ex)
@@ -2760,8 +2764,8 @@ private void CreateGameShortcut()
                 // resolves the battle game type (5.15.4) before either mod-manager call, so
                 // both operate on the same game.
                 SetPlaythrough(); // sets _gameType from ResolvedBattleGameType
-                AttilaModManager.ReadInstalledMods(_gameType == "attila" ? "Attila" : _gameType);
-                AttilaModManager.CreateUserModsFile(_gameType == "attila" ? "Attila" : _gameType);
+                AttilaModManager.ReadInstalledMods(_gameType);
+                AttilaModManager.CreateUserModsFile(_gameType);
                 Program.Logger.Debug($"Continued battle using game type: {_gameType}");
 
                 DataSearch.FindSiegeCombatID();
