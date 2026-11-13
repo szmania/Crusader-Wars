@@ -77,10 +77,9 @@ namespace CrusaderWars.mod_manager
         }
 
         [SupportedOSPlatform("windows")]
-        static void RemoveRequiredMods()
+        static void RemoveRequiredMods(string gameType)
         {
-            string[] unitMappers_folders = UnitMappers_BETA.GetMapperDirectories();
-            ModsPaths.RemoveAll(x => x.GetName() == "CrusaderConflicts.pack");
+            string[] unitMappers_folders = UnitMappers_BETA.GetMapperDirectories(gameType);
 
             foreach (var mapper in unitMappers_folders)
             {
@@ -153,7 +152,7 @@ namespace CrusaderWars.mod_manager
             }
         }
 
-        public static string? GetWorkshopFolderPath(string gameType = "Attila")
+        public static string? GetWorkshopFolderPath(string gameType = "attila")
         {
             var gameService = games.GameServiceFactory.GetGameService(gameType);
             string gamePath = gameService.GetGamePath();
@@ -174,7 +173,7 @@ namespace CrusaderWars.mod_manager
         }
 
         [SupportedOSPlatform("windows")]
-        public static void CreateUserModsFile(string gameType = "Attila")
+        public static void CreateUserModsFile(string gameType = "attila")
         {
             var gameService = games.GameServiceFactory.GetGameService(gameType);
             Program.Logger.Debug($"Creating user mods file for {gameType}...");
@@ -262,7 +261,7 @@ namespace CrusaderWars.mod_manager
             }
         }
         [SupportedOSPlatform("windows")]
-        public static void ReadInstalledMods(string gameType = "Attila")
+        public static void ReadInstalledMods(string gameType = "attila")
         {
             var gameService = games.GameServiceFactory.GetGameService(gameType);
             Program.Logger.Debug($"Reading installed {gameType} mods...");
@@ -323,7 +322,7 @@ namespace CrusaderWars.mod_manager
 
             //  REMOVE REQUIRED MODS
             //  to only show optional mods
-            RemoveRequiredMods();
+            RemoveRequiredMods(gameType);
 
 
             //SET ACTIVE MODS
@@ -332,7 +331,7 @@ namespace CrusaderWars.mod_manager
         }
 
         [SupportedOSPlatform("windows")]
-        public static void ReadInstalledModsAndPopulateModManager(string gameType = "Attila")
+        public static void ReadInstalledModsAndPopulateModManager(string gameType = "attila")
         {
             ReadInstalledMods(gameType);
 
@@ -476,7 +475,7 @@ namespace CrusaderWars.mod_manager
 
         private static bool IsBaseGamePack(string fileName, string gameType)
         {
-            return gameType == "Rome2"
+            return gameType == "rome_2"
                 ? Rome2BaseGamePacks.Contains(fileName)
                 : AttilaBaseGamePacks.Contains(fileName);
         }
@@ -498,10 +497,10 @@ namespace CrusaderWars.mod_manager
         /// used by UC_UnitMapper.VerifyAllErasBothGamesAsync.</summary>
         public static string GetGameLabel(string gameType)
         {
-            return gameType == "Rome2" ? "[TW: Rome 2]" : "[TW: Attila]";
+            return gameType == "rome_2" ? "[TW: Rome 2]" : "[TW: Attila]";
         }
 
-        public static VerificationResult VerifyModFiles(List<(string FileName, string Sha256, string? ScreenName, string? Url)> modsToVerifyList, IProgress<string>? progress, string gameType = "Attila")
+        public static VerificationResult VerifyModFiles(List<(string FileName, string Sha256, string? ScreenName, string? Url)> modsToVerifyList, IProgress<string>? progress, string gameType = "attila")
         {
             Program.Logger.Debug("Verifying mod files...");
             var result = new VerificationResult();
