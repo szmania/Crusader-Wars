@@ -11,8 +11,8 @@ using System.Linq;
 using System.Net.Http; // Added this line
 using System.Security.Cryptography;
 using System.Collections.Generic; // Added for HashSet
-using System.Security.Cryptography;
 
+using CrusaderWars.unit_mapper;
 namespace CWUpdater
 {
     public partial class AutoUpdater : Form
@@ -354,8 +354,8 @@ namespace CWUpdater
                         }
                         else
                         {
-                            // It's a file, create parent directory if needed
-                            Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
+                            string? parentDir = Path.GetDirectoryName(fullPath);
+                            if (parentDir != null) Directory.CreateDirectory(parentDir);
                             entry.ExtractToFile(fullPath, true);
                         }
                     }
@@ -598,7 +598,7 @@ del ""%~f0""
 
                             string unitMappersDir = Path.Combine(applicationPath, "unit_mappers");
                             string settingsDir = Path.Combine(applicationPath, "settings");
-                            string battleFilesDir = Path.Combine(applicationPath, "data", "attila_battle_files");
+                            string battleFilesDir = Path.Combine(applicationPath, "data", UnitMappers_BETA.BattleFilesDirName);
                             string rome2BattleFilesDir = Path.Combine(applicationPath, "data", "rome_2_battle_files");
                             string saveFileDataDir = Path.Combine(applicationPath, "data", "save_file_data");
 
@@ -1162,11 +1162,9 @@ del ""%~f0""
                 string destFile = Path.Combine(destDir, relativePath);
 
                 // Ensure the destination directory for the file exists.
-                string destSubDir = Path.GetDirectoryName(destFile);
+                string destSubDir = Path.GetDirectoryName(destFile)!;
                 if (destSubDir != null && !Directory.Exists(destSubDir))
-                {
-                    Directory.CreateDirectory(destSubDir);
-                }
+                    Directory.CreateDirectory(destSubDir!);
 
                 // Copy the file.
                 File.Copy(sourceFile, destFile, true);

@@ -1415,7 +1415,7 @@ return byTag.Values.ToList();
         ///     selections self-heal back to D1 instead of producing a broken battle.
         ///  2. Otherwise an overlap (both games covering) resolves to Attila silently (D1),
         ///     with a Debug log recording the implicit decision.
-        /// Returns "Attila" with an empty list when nothing covers, so callers keep the
+        /// Returns "attila" with an empty list when nothing covers, so callers keep the
         /// existing "no valid configuration for year" error path.
         /// </summary>
         public static (string gameType, List<string> coveringFolderPaths) ResolveMapperForBattle(string tag, int year)
