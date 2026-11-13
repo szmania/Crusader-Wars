@@ -11,7 +11,7 @@ namespace CrusaderWars
 
         private static string GetFilePath()
         {
-            string scriptDirectory = "data\\battle files\\script\\tut_tutorial_battle";
+            string scriptDirectory = $"data\\{CrusaderWars.unit_mapper.UnitMappers_BETA.BattleFilesDirName}\\script\\tut_tutorial_battle";
             string fileName = "tut_start.lua";
             string fullPath = Path.Combine(scriptDirectory, fileName);
 
@@ -163,7 +163,7 @@ function building_destroyed()
     bm:out(""WALLS_DESTROYED"");
     dev.log(""WALLS_DESTROYED"");
     walls_attacked = false;
-  end; 
+  end;
 end;
 
 scripting.AddEventCallBack(""BattleUnitDestroysBuilding"", building_destroyed);
@@ -177,7 +177,7 @@ end;
 scripting.AddEventCallBack(""BattleUnitAttacksWalls"", walls_attacked_func);
 ";
                 victoryLogic = @"
-	if is_routing_or_dead(Alliance_Stark) then	
+	if is_routing_or_dead(Alliance_Stark) then
 		bm:out(""Player has lost, army is routing"");
         dev.log(""Defeat"")
 	elseif is_routing_or_dead(Alliance_Bolton) then
@@ -194,7 +194,7 @@ scripting.AddEventCallBack(""BattleUnitAttacksWalls"", walls_attacked_func);
             else
             {
                 victoryLogic = @"
-	if is_routing_or_dead(Alliance_Stark) then	
+	if is_routing_or_dead(Alliance_Stark) then
 		bm:out(""Player has lost, army is routing"");
         dev.log(""Defeat"")
 	elseif is_routing_or_dead(Alliance_Bolton) then
@@ -251,26 +251,26 @@ dev.log""\n Script Loaded"";
 
 
 bm:setup_victory_callback(function() file_debug() end);
-bm:register_phase_change_callback(""Complete"", function() file_debug() end);	
+bm:register_phase_change_callback(""Complete"", function() file_debug() end);
 
- 
+
 function Deployment_Phase()
 	bm:out(""Battle is in deployment phase"");
 end;
 
 function Start_Battle()
 	bm:out(""Battle is Starting"");
-	
+
 end;
 
 local scripting = require ""lua_scripts.episodicscripting""
 -- Callbacks
 function EndBattle(context)
-   
+
     if context.string == ""button_end_battle"" then
         dev.log(""Battle has finished"")
     end;
-    
+
     if context.string == ""button_dismiss_results"" then
         dev.log(""Battle has finished"")
     end;
@@ -285,7 +285,7 @@ function file_debug()
 
 	bm:callback(function() bm:end_battle() end, 1000);
 {victoryLogic}
-    
+
 	remaining_soldiers();
 	kills();
 	commander_system();

@@ -1400,6 +1400,12 @@ return byTag.Values.ToList();
         /// for reads that happen before a battle is processed.</summary>
         public static string ResolvedBattleGameType { get; private set; } = "attila";
 
+        /// <summary>Name of the game-specific battle-files staging folder
+        /// ("rome_2_battle_files" | "attila_battle_files") for the resolved battle game type.
+        /// Shared by the battle-file/script/localization writers so they target the same game
+        /// folder the .pack is built from.</summary>
+        public static string BattleFilesDirName => ResolvedBattleGameType == "rome_2" ? "rome_2_battle_files" : "attila_battle_files";
+
         /// <summary>
         /// Resolves which game's mapper folders cover a playthrough tag in a given year
         /// (design 5.15.4 / 5.15.5). Scans both game subdirectories, keeps folders whose

@@ -25,24 +25,26 @@ namespace CrusaderWars
     public static class BattleFile
     {
         private static bool PlayerIsSiegeDefender { get; set; }
-        private static string GameMap = "Terrain/battles/main_attila_map/";
+        private static string GameMap = (UnitMappers_BETA.ResolvedBattleGameType == "rome_2" ? "Terrain/battles/main_rome_map/" : "Terrain/battles/main_attila_map/");
         public static string? Unit_Script_Name { get; set; }
 
         //Get User Path
         // Resolved lazily via ResolveBattleTemplatePath() instead of an eager initializer:
-        // the template lives in a subfolder of 'data\battle files\script' that may not exist
+        // the template lives in a subfolder of the game-specific battle-files 'script' folder that may not exist
         // relative to the current working directory, and a throwing field initializer only
         // surfaces as an opaque TypeInitializationException.
         static readonly string battlePath = ResolveBattleTemplatePath();
+
 
         private static string ResolveBattleTemplatePath()
         {
             const string templateName = "tut_battle.xml";
             var searchRoots = new List<string>();
+            string battleFilesDirName = UnitMappers_BETA.BattleFilesDirName;
 
             // 1 & 2: current working directory and the executable's directory
-            searchRoots.Add(Path.Combine(Directory.GetCurrentDirectory(), "data", "battle files", "script"));
-            searchRoots.Add(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "battle files", "script"));
+            searchRoots.Add(Path.Combine(Directory.GetCurrentDirectory(), "data", battleFilesDirName, "script"));
+            searchRoots.Add(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", battleFilesDirName, "script"));
 
             // 3: walk up from each base (max 4 parent levels) — covers running the exe
             // from bin\Debug\... with the data folder at a repo/parent root.
@@ -52,7 +54,7 @@ namespace CrusaderWars
                 for (int i = 0; i < 4 && dir.Parent != null; i++)
                 {
                     dir = dir.Parent;
-                    searchRoots.Add(Path.Combine(dir.FullName, "data", "battle files", "script"));
+                    searchRoots.Add(Path.Combine(dir.FullName, "data", battleFilesDirName, "script"));
                 }
             }
 
@@ -78,7 +80,7 @@ namespace CrusaderWars
             Program.Logger.Debug($"ERROR: Battle template '{templateName}' not found. Searched: {searched}");
             throw new FileNotFoundException(
                 $"Battle template '{templateName}' was not found. The application data folder is incomplete. " +
-                "Expected under 'data\\battle files\\script'. Copy the full 'data' folder from your Crusader Conflicts " +
+                $"Expected under 'data\\{battleFilesDirName}\\script'. Copy the full 'data' folder from your Crusader Conflicts " +
                 $"installation or release package into the application folder. Directories searched: {searched}");
         }
 
@@ -90,7 +92,7 @@ namespace CrusaderWars
             {
                 using (FileStream logFile = File.Open(battlePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
                 {
-                    //File.Create(path_log); 
+                    //File.Create(path_log);
                     isCreated = true;
                 }
 
@@ -184,7 +186,7 @@ namespace CrusaderWars
         static void AllControledArmies(List<Army> temp_attacker_armies, List<Army> temp_defender_armies, Army player_army, Army enemy_main_army, int total_soldiers, (string X, string Y, string[] attPositions, string[] defPositions) battleMap, Dictionary<string, int> siegeEngines)
         {
             //----------------------------------------------
-            //  Merge armies until there are only one      
+            //  Merge armies until there are only one
             //----------------------------------------------
             ArmiesControl.MergeIntoOneArmy(temp_attacker_armies);
             if (!twbattle.BattleState.IsSiegeBattle)
@@ -259,7 +261,7 @@ namespace CrusaderWars
             Program.Logger.Debug($"Player main army: {player_main_army.ID}, Enemy main army: {enemy_main_army.ID}");
 
             //----------------------------------------------
-            //  Merge friendly armies to main army     
+            //  Merge friendly armies to main army
             //----------------------------------------------
             bool isUserAlly = false; Army? userAlliedArmy = null;
             if (player_main_army.Owner?.GetID() == DataSearch.Player_Character?.GetID())
@@ -323,7 +325,7 @@ namespace CrusaderWars
             }
 
             //----------------------------------------------
-            //  Merge armies until there are only three      
+            //  Merge armies until there are only three
             //----------------------------------------------
             Program.Logger.Debug($"Armies before merging down to three: {temp_attacker_armies.Count} attackers, {temp_defender_armies.Count} defenders.");
             ArmiesControl.MergeArmiesUntilThree(temp_attacker_armies);
@@ -442,7 +444,7 @@ namespace CrusaderWars
         {
             bool isUserAlly = false; Army? userAlliedArmy = null;
             //----------------------------------------------
-            //  Merge armies until there are only four      
+            //  Merge armies until there are only four
             //----------------------------------------------
 
             if (player_main_army.Owner?.GetID() == DataSearch.Player_Character?.GetID())
@@ -750,7 +752,7 @@ namespace CrusaderWars
 
             DetermineBattleType();
 
-            GameMap = (games.GameServiceFactory.GetCurrentGameService().GetGameType() == "Rome2") ? GetRome2Map() : GetAttilaMap();
+            GameMap = (games.GameServiceFactory.GetCurrentGameService().GetGameType() == "rome_2") ? GetRome2Map() : GetAttilaMap();
 
 
             //  ALL CONTROLED ARMIES
@@ -934,7 +936,7 @@ namespace CrusaderWars
 
         private static string GetAttilaMap()
         {
-            string default_attila_map = "Terrain/battles/main_attila_map/";
+            string default_attila_map = (UnitMappers_BETA.ResolvedBattleGameType == "rome_2" ? "Terrain/battles/main_rome_map/" : "Terrain/battles/main_attila_map/");
             string? attilaMap = UnitMappers_BETA.Terrains?.GetAttilaMap();
 
             if (!string.IsNullOrEmpty(attilaMap))
@@ -1531,7 +1533,7 @@ namespace CrusaderWars
             }
             switch (army.CombatSide)
             {
-                // 0 = player defender 
+                // 0 = player defender
                 // 1 = enemy defender
                 case "defender":
                     SetBattleDescription("0", total_soldiers);
@@ -1548,7 +1550,7 @@ namespace CrusaderWars
         [SupportedOSPlatform("windows")]
         private static void SetBattleDescription(string combat_side, int total_soldiers)
         {
-            // 0 = player defender 
+            // 0 = player defender
             // 1 = enemy defender
 
             string battleType = twbattle.BattleState.BattleType ?? "land_normal";

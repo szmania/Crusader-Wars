@@ -28,8 +28,8 @@ namespace CrusaderWars.locs
         };
         public static void RemoveFiles()
         {
-
-            string path = @".\data\battle files\text\db";
+            string path = Path.Combine(".", "data", UnitMappers_BETA.BattleFilesDirName, "text", "db");
+            string path = $@".\data\{UnitMappers_BETA.BattleFilesDirName}\text\db";
             foreach (var file in Directory.GetFiles(path))
             {
                 string fileName = Path.GetFileName(file);
@@ -314,8 +314,8 @@ namespace CrusaderWars.locs
 
                     reader.Dispose();
                 }
-
-                string battle_files_path = $@".\data\battle files\text\db\{loc_file_name}";
+                string battle_files_path = Path.Combine(".", "data", UnitMappers_BETA.BattleFilesDirName, "text", "db", loc_file_name);
+                string battle_files_path = $@".\data\{UnitMappers_BETA.BattleFilesDirName}\text\db\{loc_file_name}";
 
                 File.WriteAllText(file_to_edit_path, edited_names);
                 if (File.Exists(battle_files_path)) File.Delete(battle_files_path);

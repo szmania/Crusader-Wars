@@ -52,7 +52,7 @@ namespace CrusaderWars.locs
             // If parsing fails, 'version' remains "v1.0.0"
 
 
-            string original_buttonVersion_path = @".\data\battle files\text\db\tutorial_historical_battles_uied_component_texts.loc.tsv";
+            string original_buttonVersion_path = $@".\data\{CrusaderWars.unit_mapper.UnitMappers_BETA.BattleFilesDirName}\text\db\tutorial_historical_battles_uied_component_texts.loc.tsv";
             string copy_path = @".\data\tutorial_historical_battles_uied_component_texts.loc.tsv";
             File.Copy(original_buttonVersion_path, copy_path);
             File.WriteAllText(copy_path, string.Empty);
@@ -96,7 +96,7 @@ namespace CrusaderWars.locs
 
         private static void EditBattleTextDetails(int left_side_total, int right_side_total)
         {
-            string original_battle_details_path = @".\data\battle files\text\db\tutorial_historical_battles.loc.tsv";
+            string original_battle_details_path = $@".\data\{CrusaderWars.unit_mapper.UnitMappers_BETA.BattleFilesDirName}\text\db\tutorial_historical_battles.loc.tsv";
             string copy_path = @".\data\tutorial_historical_battles.loc.tsv";
             File.Copy(original_battle_details_path, copy_path);
             File.WriteAllText(copy_path, string.Empty);
@@ -144,7 +144,7 @@ namespace CrusaderWars.locs
 
         private static void EditCombatSidesDetails(string playerCombatSide, string enemyCombatSide)
         {
-            string original_attila_file_path = @".\data\battle files\text\db\tutorial_historical_battles_factions.loc.tsv";
+            string original_attila_file_path = $@".\data\{CrusaderWars.unit_mapper.UnitMappers_BETA.BattleFilesDirName}\text\db\tutorial_historical_battles_factions.loc.tsv";
             string copy_path = @".\data\tutorial_historical_battles_factions.loc.tsv";
             File.Copy(original_attila_file_path, copy_path);
             File.WriteAllText(copy_path, string.Empty);
@@ -188,7 +188,7 @@ namespace CrusaderWars.locs
              * MildWinter
              * NormalWinter
              * HarshWinter
-             * 
+             *
              * nullOrEmpty
              */
 
@@ -197,7 +197,7 @@ namespace CrusaderWars.locs
              * fall
              * spring
              * summer
-             * 
+             *
              * null value = random
              */
 
@@ -263,7 +263,7 @@ namespace CrusaderWars.locs
                 image_to_copy_path = default_image_path;
             }
 
-            string battle_files_image_path = @".\data\battle files\script\tut_tutorial_battle\screenshot_small.png";
+            string battle_files_image_path = $@".\data\{CrusaderWars.unit_mapper.UnitMappers_BETA.BattleFilesDirName}\script\tut_tutorial_battle\screenshot_small.png";
 
             if (File.Exists(battle_files_image_path)) File.Delete(battle_files_image_path);
             File.Copy(image_to_copy_path, battle_files_image_path);
