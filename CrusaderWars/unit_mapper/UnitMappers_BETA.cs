@@ -1090,104 +1090,6 @@ return byTag.Values.ToList();
             return new List<string>(combinedList);
         }
 
-private static readonly Lazy<WeatherData> _weatherData = new Lazy<WeatherData>(() => new WeatherData());
-
-        public static WeatherData WeatherData => _weatherData.Value;
-
-        private static void ReadTerrainsFile()
-        {
-            SiegeEngines.Clear(); // Clear the list to prevent duplicate data on re-read
-
-            if (LoadedUnitMapper_FolderPath == null) { Terrains = null; return; }
-
-            string terrainsFolderPath = Path.Combine(LoadedUnitMapper_FolderPath, "terrains");
-            if (!Directory.Exists(terrainsFolderPath))
-            {
-                terrainsFolderPath = Path.Combine(LoadedUnitMapper_FolderPath, "Terrains");
-                if (!Directory.Exists(terrainsFolderPath))
-                {
-                    Terrains = null;
-                    return;
-                }
-            }
-
-            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
-            var terrainFiles = GetSortedFilePaths(terrainsFolderPath, priorityFilePattern);
-
-            try
-            {
-                // ... existing terrain reading code ...
-                Terrains = new TerrainsUM(attilaMap, rome2Map, historicMapsList, normalMapsList, settlementMapsList, uniqueSettlementMapsList, landBridgeMaps, coastalMaps);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error reading {GetLoadedUnitMapperName()} terrains file: {ex.Message}", "Crusader Conflicts: Unit Mapper Error",
-                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-            }
-
-            // Load custom weather definitions from Weather subfolder (optional)
-            WeatherData.Instance.LoadFromMapper(LoadedUnitMapper_FolderPath);
-        }
-
-        private static void EnsureFactionCacheLoaded()
-        {
-            if (_factionFileCache != null) return; // Cache is already loaded
-
-            _factionFileCache = new Dictionary<string, XmlDocument>();
-            _levyCache = new Dictionary<string, (List<(int porcentage, string unit_key, string name, string max)>, string)>();
-            _garrisonCache = new Dictionary<string, List<(int percentage, string unit_key, string name, string max, int level)>>();
-
-            if (LoadedUnitMapper_FolderPath == null) return;
-
-            string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
-            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
-            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
-
-            foreach (var file in files_paths)
-            {
-                XmlDocument doc = new XmlDocument();
-                try
-                {
-                    doc.Load(file);
-                    if (doc.DocumentElement == null) continue;
-                    _factionFileCache[file] = doc;
-
-                    foreach (XmlNode factionNode in doc.SelectNodes("/Factions/Faction"))
-                    {
-                        string factionName = factionNode.Attributes?["name"]?.Value ?? string.Empty;
-                        if (string.IsNullOrEmpty(factionName)) continue;
-
-                        var levies = Levies(doc, factionName);
-                        if (levies.Any())
-                        {
-                            _levyCache[factionName] = (levies, factionName);
-                        }
-
-                        var garrisons = Garrison(doc, factionName);
-                        if (garrisons.Any())
-                        {
-                            _garrisonCache[factionName] = garrisons;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Program.Logger.Debug($"Error loading faction file '{Path.GetFileName(file)}' into cache: {ex.Message}");
-                    continue;
-                }
-                if (doc.DocumentElement == null) continue;
-                _factionFileCache[file] = doc;
-            }
-            LoadedUnitMapper_FolderPath = mapperPath; // This will only store the last loaded mapper path.
-            ReadTerrainsFile(); // This will only read terrains from the last loaded mapper path.
-        }
-
-        private static void ReadTerrainsFile()
-        {
-            // ... rest of existing code ...
-            // Load custom weather definitions from Weather subfolder (optional)
-            WeatherData.Instance.LoadFromMapper(LoadedUnitMapper_FolderPath);
-        }
         private static void ReadTerrainsFile()
         {
             SiegeEngines.Clear(); // Clear the list to prevent duplicate data on re-read
@@ -1488,6 +1390,9 @@ private static readonly Lazy<WeatherData> _weatherData = new Lazy<WeatherData>((
                 MessageBox.Show($"Error reading {GetLoadedUnitMapperName()} terrains file: {ex.Message}", "Crusader Conflicts: Unit Mapper Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
             }
+
+            // Load custom weather definitions from Weather subfolder (optional)
+            WeatherData.Instance.LoadFromMapper(LoadedUnitMapper_FolderPath);
         }
 
         [SupportedOSPlatform("windows")]

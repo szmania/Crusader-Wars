@@ -30,6 +30,9 @@ namespace CrusaderWars.unit_mapper
 
         public void LoadFromMapper(string mapperPath)
         {
+            // Clear previous mapper's definitions so switching playthroughs never keeps stale weather.
+            _weatherByType.Clear();
+
             var weatherPath = Path.Combine(mapperPath, "Weather");
             if (!Directory.Exists(weatherPath))
             {
@@ -41,8 +44,10 @@ namespace CrusaderWars.unit_mapper
                 try
                 {
                     var doc = XDocument.Load(file);
-                    var weatherElement = doc.Root?.Element("Weather");
-                    if (weatherElement == null) continue;
+                    // The document root IS <Weather> per the weather.xsd spec; a child lookup
+                    // (doc.Root?.Element("Weather")) would always return null and skip every file.
+                    var weatherElement = doc.Root;
+                    if (weatherElement == null || weatherElement.Name.LocalName != "Weather") continue;
 
                     // Process Land/Day (battles we support)
                     var landElement = weatherElement.Element("Land");

@@ -408,6 +408,18 @@ string rome2Executable = Path.GetFileName(Properties.Settings.Default.VAR_rome2_
                     allErrors.AddRange(mod_manager.XmlValidator.Validate(file, Path.Combine(schemasDir, "titles.xsd")));
                 }
             }
+
+            // Validate Weather (optional subfolder; schema ships with the mappers download and
+            // may be absent — skip gracefully in that case rather than erroring).
+            string weatherDir = Path.Combine(unitMapperDirectory, "Weather");
+            string weatherSchema = Path.Combine(schemasDir, "weather.xsd");
+            if (Directory.Exists(weatherDir) && File.Exists(weatherSchema))
+            {
+                foreach (var file in Directory.GetFiles(weatherDir, "*.xml"))
+                {
+                    allErrors.AddRange(mod_manager.XmlValidator.Validate(file, weatherSchema));
+                }
+            }
             return allErrors;
         }
 
@@ -1398,7 +1410,18 @@ userFriendlyName = $"Custom ({ModOptions.GetSelectedCustomMapper()})";
                     if (gameRows.Any())
                     {
                         var mappingLines = gameRows
-                            .Select(r => $"• {r.Label}: {(r.AttilaSelected ? "TW: Attila" : r.Rome2Selected ? "TW: Rome 2" : "—")}")
+                            .Select(r =>
+                            {
+                                // Left side: time period range (e.g. "769 - 1453"); "Any Year" when unbounded.
+                                string range = (r.StartYear == 0 && r.EndYear >= 9999)
+                                    ? "Any Year"
+                                    : $"{r.StartYear} - {r.EndYear}";
+                                // Right side: the game selected for that range (Attila, Rome 2, or none).
+                                string game = r.AttilaSelected ? "TW: Attila"
+                                    : r.Rome2Selected ? "TW: Rome 2"
+                                    : "—";
+                                return $"• {range}: {game}";
+                            })
                             .ToList();
 
                         playthroughGameMappingTitleLabel.Location = new Point(playthroughPictureBox.Right + 10, lastBottom + 5);
@@ -3145,7 +3168,7 @@ private void CreateGameShortcut()
                     "rome_2" => "CC Rome2.lnk",
                     _ => "CC.lnk"
                 };
-                shortcutPath = @"." + shortcutName;
+                shortcutPath = @".\" + shortcutName;
                 Program.Logger.Debug($"Using Windows shortcut path: {shortcutPath}");
             }
 

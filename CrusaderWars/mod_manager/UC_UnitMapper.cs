@@ -105,8 +105,8 @@ namespace CrusaderWars.mod_manager
         private void InitializeGameSelection()
         {
             string tagToFind = _playthroughTag == "Custom" ? client.ModOptions.GetSelectedCustomMapper() : _playthroughTag;
-            bool bothGamesCoverTag = FindMapperFolderForTag("Attila", tagToFind) != null
-                                  && FindMapperFolderForTag("Rome2", tagToFind) != null;
+            bool bothGamesCoverTag = FindMapperFolderForTag("attila", tagToFind) != null
+                                  && FindMapperFolderForTag("rome_2", tagToFind) != null;
             if (!bothGamesCoverTag)
             {
                 BtnTwGame.Visible = false;
@@ -154,14 +154,14 @@ namespace CrusaderWars.mod_manager
                 foreach (var row in dialog.Result)
                 {
                     if (row.AttilaSelected && !string.IsNullOrEmpty(row.AttilaFolder))
-                        MapperSelectionsStore.SetSelection(_playthroughTag, "Attila", row.AttilaFolder);
+                        MapperSelectionsStore.SetSelection(_playthroughTag, "attila", row.AttilaFolder);
                     else if (!string.IsNullOrEmpty(row.AttilaFolder))
-                        MapperSelectionsStore.RemoveSelection(_playthroughTag, "Attila", row.AttilaFolder);
+                        MapperSelectionsStore.RemoveSelection(_playthroughTag, "attila", row.AttilaFolder);
 
                     if (row.Rome2Selected && !string.IsNullOrEmpty(row.Rome2Folder))
-                        MapperSelectionsStore.SetSelection(_playthroughTag, "Rome2", row.Rome2Folder);
+                        MapperSelectionsStore.SetSelection(_playthroughTag, "rome_2", row.Rome2Folder);
                     else if (!string.IsNullOrEmpty(row.Rome2Folder))
-                        MapperSelectionsStore.RemoveSelection(_playthroughTag, "Rome2", row.Rome2Folder);
+                        MapperSelectionsStore.RemoveSelection(_playthroughTag, "rome_2", row.Rome2Folder);
                 }
 
                 MapperSelectionsStore.Flush();
@@ -429,6 +429,18 @@ if (tag.StartsWith("Custom_", StringComparison.OrdinalIgnoreCase))
                 foreach (var file in Directory.GetFiles(titlesDir, "*.xml"))
                 {
                     allErrors.AddRange(XmlValidator.Validate(file, Path.Combine(schemasDir, "titles.xsd")));
+                }
+            }
+
+            // Validate Weather (optional subfolder; schema ships with the mappers download and
+            // may be absent — skip gracefully in that case rather than erroring).
+            string weatherDir = Path.Combine(unitMapperDirectory, "Weather");
+            string weatherSchema = Path.Combine(schemasDir, "weather.xsd");
+            if (Directory.Exists(weatherDir) && File.Exists(weatherSchema))
+            {
+                foreach (var file in Directory.GetFiles(weatherDir, "*.xml"))
+                {
+                    allErrors.AddRange(XmlValidator.Validate(file, weatherSchema));
                 }
             }
             return allErrors;
@@ -808,7 +820,7 @@ if (tag.StartsWith("Custom_", StringComparison.OrdinalIgnoreCase))
             // (FileName, Sha256), then one VerifyModFiles call (paths are game-specific).
             var combined = new VerificationResult();
 
-            foreach (var game in new[] { "Attila", "Rome2" })
+            foreach (var game in new[] { "attila", "rome_2" })
             {
                 // Games whose exe path is not configured are skipped: verification needs the
                 // game's data/workshop folders to exist (5.15.7 rule 4).
@@ -831,7 +843,7 @@ if (tag.StartsWith("Custom_", StringComparison.OrdinalIgnoreCase))
                 if (!mods.Any()) continue;
 
                 // Prefix progress so the user can tell which game a pack belongs to (5.15.7 rule 5).
-                string gamePrefix = game == "Rome2" ? "[TW: Rome 2] " : "[TW: Attila] ";
+                string gamePrefix = game == "rome_2" ? "[TW: Rome 2] " : "[TW: Attila] ";
                 var gameProgress = new Progress<string>(msg => progress.Report(gamePrefix + msg));
 
                 statusLabelDelegate?.Invoke(gamePrefix + initialStatus);

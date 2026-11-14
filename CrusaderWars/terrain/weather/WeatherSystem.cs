@@ -160,7 +160,10 @@ public static void SetSeason(string season)
                 case "Mild":
                 case "suave":
                 case "Hiver doux":
-                case "Milder":
+                case "Milde":
+                case "穏やかな":
+                case "온후한":
+                case "łagodna":
                 case "Мягкие":
                 case "温暖的":
                     severity = WinterSeverity.Mild;
@@ -168,7 +171,10 @@ public static void SetSeason(string season)
                 case "Normal":
                 case "normal":
                 case "Hiver normal":
-                case "Normaler":
+                case "Normale":
+                case "普通の":
+                case "평범한":
+                case "zwyczajna":
                 case "Обычные":
                 case "普通的":
                     severity = WinterSeverity.Normal;
@@ -176,7 +182,10 @@ public static void SetSeason(string season)
                 case "Harsh":
                 case "duro":
                 case "Hiver rude":
-                case "Rauer":
+                case "Raue":
+                case "厳しい":
+                case "가혹한":
+                case "surowa":
                 case "Суровые":
                 case "严酷的":
                     severity = WinterSeverity.Harsh;
@@ -220,8 +229,38 @@ public static void SetSeason(string season)
 
         static string ChooseWeather()
         {
-
             Random random = new Random();
+
+            // Custom weather override: when the active unit mapper ships a Weather subfolder
+            // defining environments for the current battle type, use them instead of the
+            // hardcoded lists below. Falls through to hardcoded weather when no custom
+            // definition exists for the type (or no Weather folder at all).
+            string? customType = null;
+            if (HasWinter)
+            {
+                customType = Winter_Severity switch
+                {
+                    WinterSeverity.Mild => "mild_winter",
+                    WinterSeverity.Normal => "normal_winter",
+                    WinterSeverity.Harsh => "harsh_winter",
+                    _ => "normal_winter",
+                };
+            }
+            else if (Season is "winter" or "spring" or "fall" or "summer")
+            {
+                customType = Season;
+            }
+
+            if (customType != null)
+            {
+                var customEnvironments = unit_mapper.WeatherData.Instance.GetEnvironments(customType);
+                if (customEnvironments.Any())
+                {
+                    Program.Logger.Debug($"Using custom weather from unit mapper for '{customType}' ({customEnvironments.Count} environment(s)).");
+                    return customEnvironments[random.Next(0, customEnvironments.Count)].Key;
+                }
+            }
+
             if (HasWinter)
             {
                 switch (Winter_Severity)
