@@ -467,10 +467,13 @@ namespace CrusaderWars.mod_manager
         // up in the optional list, it is never auto-enabled.
         private static readonly HashSet<string> Rome2BaseGamePacks = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            "boot.pack", "data_rome2.pack", "models_rome2.pack", "models2_rome2.pack",
-            "models3_rome2.pack", "terrain_rome2.pack", "tiles_rome2.pack", "tiles2_rome2.pack",
-            "tiles3_rome2.pack", "local_en.pack", "local_en_shared_rome2.pack",
-            "music_en_shared_rome2.pack", "movies.pack", "music.pack", "sound.pack", "blood.pack"
+            "blood_rome2.pack", "boot.pack", "data.pack", "data_rome2.pack", "divided.pack", "gaul.pack", "greeks.pack",
+            "invasion.pack", "language.txt", "local_en.pack", "local_en_shared_rome2.pack", "manifest.txt",
+            "models.pack", "models_rome2.pack", "models2.pack", "models2_rome2.pack", "models3_rome2.pack",
+            "movies.pack", "movies_rome2.pack", "music.pack", "music_en_shared_rome2.pack", "music_rome2.pack",
+            "punic.pack", "sound.pack", "sound_rome2.pack", "terrain.pack", "terrain_rome2.pack", "terrain2.pack",
+            "terrain2_rome2.pack", "terrain3_rome2.pack", "tiles.pack", "tiles_rome2.pack", "tiles2.pack",
+            "tiles2_rome2.pack", "tiles3.pack", "tiles3_rome2.pack", "tiles4.pack", "tiles4_rome2.pack"
         };
 
         private static bool IsBaseGamePack(string fileName, string gameType)
