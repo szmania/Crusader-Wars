@@ -21,6 +21,9 @@ namespace CrusaderWars.twbattle
         public static bool AutofixForceGenericMap { get; set; } = false;
         public static int AutofixMapVariantOffset { get; set; } = 0;
         public static Dictionary<(string originalKey, bool isPlayerAlliance), (string replacementKey, bool isSiege)> ManualUnitReplacements { get; set; } = new Dictionary<(string, bool), (string, bool)>();
+        /// <summary>True once the Total War game has crashed at least once during the current battle.
+        /// Used to gate post-battle popups (e.g. "manual tool settings" report) behind an actual crash.</summary>
+        public static bool BattleCrashedAtLeastOnce { get; set; } = false;
 
         // Serializable classes for JSON persistence
         public class ReplacementEntry
@@ -135,6 +138,7 @@ namespace CrusaderWars.twbattle
             IsSiegeBattle = false;
             BattleType = null;
             HasReliefArmy = false;
+            BattleCrashedAtLeastOnce = false; // Reset crash flag for the next battle
             ClearAutofixOverrides(); // Reset autofix overrides
             if (System.IO.File.Exists(StateFile))
             {

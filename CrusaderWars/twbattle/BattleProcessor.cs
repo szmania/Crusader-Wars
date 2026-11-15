@@ -37,12 +37,12 @@ namespace CrusaderWars.twbattle
         /// <summary>Display name of the Total War game for the current battle
         /// ("Total War: Rome 2" | "Total War: Attila"), used in user-facing messages.</summary>
         private static string CurrentGameDisplayName =>
-            UnitMappers_BETA.ResolvedBattleGameType == "Rome2" ? "Total War: Rome 2" : "Total War: Attila";
+            UnitMappers_BETA.ResolvedBattleGameType == "rome_2" ? "Total War: Rome 2" : "Total War: Attila";
 
         /// <summary>Process name of the Total War game for the current battle
         /// ("Rome2" | "Attila"), used for process checks.</summary>
         private static string CurrentGameProcessName =>
-            UnitMappers_BETA.ResolvedBattleGameType == "Rome2" ? "Rome2" : "Attila";
+            UnitMappers_BETA.ResolvedBattleGameType == "rome_2" ? "Rome2" : "Attila";
 
         /// <summary>Battle results log path for the current battle's game.</summary>
         private static string CurrentGameLogPath =>
@@ -489,7 +489,7 @@ namespace CrusaderWars.twbattle
                 }
                 catch (Exception ex)
                 {
-                    Program.Logger.Debug($"Error creating Attila battle: {ex.Message}");
+                    Program.Logger.Debug($"Error creating Total War battle: {ex.Message}");
                     form.Show();
                     form.CloseLoadingScreen();
                     MessageBox.Show(form, $"Error creating the battle: {ex.Message}", "Crusader Conflicts: Data Error",
@@ -541,7 +541,7 @@ namespace CrusaderWars.twbattle
                     }
                     //Open Total War Attila
                     Program.Logger.Debug("Starting Total War: Attila process via shortcut...");
-HomePage.Games.StartTotalWarProcess(form.GameType);
+                    HomePage.Games.StartTotalWarProcess(form.GameType);
                 }
                 catch (Exception ex)
                 {
@@ -669,6 +669,7 @@ HomePage.Games.StartTotalWarProcess(form.GameType);
                     }
 
                     Program.Logger.Debug("Attila process terminated without a complete battle log. Presumed crash.");
+                    BattleState.BattleCrashedAtLeastOnce = true; // Gate post-battle popups behind an actual crash
 
                     // Resume CK3 if it was suspended (i.e., not closed) so the user can interact while deciding next steps.
                     if (!ModOptions.CloseCK3DuringBattle())
@@ -1325,7 +1326,9 @@ HomePage.Games.StartTotalWarProcess(form.GameType);
 
                     // Show successful autofix/manual tool message if applicable
                     bool wasAutofixSuccess = autofixState != null && !string.IsNullOrEmpty(autofixState.LastAppliedFixDescription);
-                    bool wasManualToolUsed = BattleState.DeploymentZoneOverrideAttacker != null || BattleState.ManualUnitReplacements.Any();
+                    // Only report manual tool settings when the battle actually crashed at least once;
+                    // without a crash the tools were not needed to fix anything.
+                    bool wasManualToolUsed = BattleState.BattleCrashedAtLeastOnce && (BattleState.DeploymentZoneOverrideAttacker != null || BattleState.ManualUnitReplacements.Any());
 
                     if (wasAutofixSuccess || wasManualToolUsed)
                     {
