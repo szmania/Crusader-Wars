@@ -1073,7 +1073,31 @@ namespace CrusaderWars.twbattle
                 battleEnded = BattleResultReader.HasBattleEnded(attilaLogPath);
                 await Task.Delay(1000); // Check every second
             }
+
             Program.Logger.Debug("TW:Attila battle ended.");
+            // Rome 2 needs a grace period after "Battle has finished" before the process is
+            // closed, otherwise the results screen may not flush to the log. Wait up to 20s,
+            // but proceed immediately if Rome 2 exits on its own. Attila is unaffected.
+            if (UnitMappers_BETA.ResolvedBattleGameType == "rome_2")
+            {
+                Program.Logger.Debug("Rome 2 battle ended. Waiting up to 20 seconds before closing Rome 2 (or until it exits on its own)...");
+                var rome2DelayStopwatch = Stopwatch.StartNew();
+                while (rome2DelayStopwatch.Elapsed.TotalSeconds < 20)
+                {
+                    if (token.IsCancellationRequested)
+                    {
+                        Program.Logger.Debug("Rome 2 post-battle delay cancelled by user action.");
+                        return false;
+                    }
+                    if (Process.GetProcessesByName(CurrentGameProcessName).Length == 0)
+                    {
+                        Program.Logger.Debug("Rome 2 process exited on its own during post-battle delay. Proceeding immediately.");
+                        break;
+                    }
+                    await Task.Delay(1000, token);
+                }
+                Program.Logger.Debug($"Rome 2 post-battle delay finished after {rome2DelayStopwatch.Elapsed.TotalSeconds:F1}s.");
+            }
 
 
             try
