@@ -24,7 +24,7 @@ namespace CrusaderWars.client.LinuxSetup.Steps
                 case "Steam":
                     lblToUpdate = lblSteamCheck;
                     break;
-                case "Attila":
+                case "attila":
                     lblToUpdate = lblAttilaCheck;
                     break;
                 case "Desktop":

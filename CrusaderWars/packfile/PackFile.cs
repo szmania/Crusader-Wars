@@ -14,24 +14,38 @@ namespace CrusaderWars
 
         public static void PackFileCreator()
         {
-            Program.Logger.Debug("Starting .pack file creation process...");
+            PackFileCreator(CrusaderWars.unit_mapper.UnitMappers_BETA.ResolvedBattleGameType);
+        }
+
+        /// <summary>Creates the CrusaderConflicts.pack for the given game type.
+        /// Uses the game-specific staging folder (data\attila_battle_files vs data\rome_2_battle_files),
+        /// the RPFM --game flag (attila vs rome2), and moves the pack into that game's data folder.</summary>
+        public static void PackFileCreator(string gameType)
+        {
+            Program.Logger.Debug($"Starting .pack file creation process for game '{gameType}'...");
             // Create and import .pack file
 
-            string create_path = Directory.GetCurrentDirectory() + @"\CrusaderConflicts.pack";
-            string add_path = Directory.GetCurrentDirectory() + @"\data\battle files";
-            string thumbnail_path = Directory.GetCurrentDirectory() + @"\settings\CrusaderWars.png";
-            string tsv_path = Directory.GetCurrentDirectory() + @"\data\schema_att.ron";
+            bool isRome2 = gameType == "rome_2";
+            string rpfmGame = isRome2 ? "rome_2" : "attila";
+            string battleFilesDir = isRome2 ? @"\data\rome_2_battle_files" : @"\data\attila_battle_files";
 
-            string create_command = $@"--game attila pack create -p ""{create_path}""";
-            string add_command = $@"--game attila pack add -p ""{create_path}"" -t ""{tsv_path}"" -F ""{add_path}""";
+            string create_path = Directory.GetCurrentDirectory() + @"\CrusaderConflicts.pack";
+            string add_path = Directory.GetCurrentDirectory() + battleFilesDir;
+            string thumbnail_path = Directory.GetCurrentDirectory() + @"\settings\CrusaderConflicts.png";
+            string tsv_path = Directory.GetCurrentDirectory() + (isRome2 ? @"\data\pack_file_schemas\schema_rom2.ron" : @"\data\pack_file_schemas\schema_att.ron");
+
+            string create_command = $@"--game {rpfmGame} pack create -p ""{create_path}""";
+            string add_command = $@"--game {rpfmGame} pack add -p ""{create_path}"" -t ""{tsv_path}"" -F ""{add_path}""";
 
             CreatePackFile(create_command);
             CreatePackFile(add_command);
 
-            string pack_dir_path = Path.Combine(Path.GetDirectoryName(Properties.Settings.Default.VAR_attila_path)!, "data");
+            // Move the pack into the resolved game's data folder (game-agnostic via GameService).
+            var gameService = GameServiceFactory.GetGameService(gameType);
+            string pack_dir_path = gameService.GetModDataPath();
             string pack_to_move_path = create_path;
             string pack_file_path = Path.Combine(pack_dir_path, "CrusaderConflicts.pack");
-            string thumb_file_path = Path.Combine(pack_dir_path, "CrusaderWars.png");
+            string thumb_file_path = Path.Combine(pack_dir_path, "CrusaderConflicts.png");
 
             if (File.Exists(pack_file_path))
             {
@@ -43,7 +57,7 @@ namespace CrusaderWars
             {
                 File.Copy(thumbnail_path, thumb_file_path);
             }
-            Program.Logger.Debug(".pack file created and moved to Attila data folder successfully.");
+            Program.Logger.Debug($".pack file created and moved to {gameType} data folder successfully.");
         }
 
         private static string? CreatePackFile(string command)

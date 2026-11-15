@@ -703,9 +703,12 @@ namespace CrusaderWars
             string[] AllWinter = new string[] {"Mild", "Normal", "Harsh" ,
                                               "suave", "normal", "duro" ,
                                               "Hiver doux", "Hiver normal", "Hiver rude",
-                                              "Milder", "Normaler", "Rauer",
+                                              "Milde", "Normale", "Raue",
                                               "Мягкие", "Обычные", "Суровые",
-                                              "温暖的", "普通的", "严酷的"
+                                              "温暖的", "普通的", "严酷的",
+                                              "穏やかな", "普通の", "厳しい",
+                                              "온후한", "평범한", "가혹한",
+                                              "łagodna", "zwyczajna", "surowa"
              };
 
 

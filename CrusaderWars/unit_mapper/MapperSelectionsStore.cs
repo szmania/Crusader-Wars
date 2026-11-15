@@ -19,14 +19,13 @@ namespace CrusaderWars.unit_mapper
     {
         // Games recognized by the MapperSelection/Folder/@Game enum in the XSD. Kept
         // in one place so availability checks and the folder dialog enumerate the same set.
-        public static readonly string[] SupportedGames = { "Attila", "Rome2" };
+        public static readonly string[] SupportedGames = { "attila", "rome_2" };
 
-private static Dictionary<string, List<(string Game, string Folder)>>? _selections;
+        private static Dictionary<string, List<(string Game, string Folder)>>? _selections;
         private static bool _dirty;
 
         private static readonly string FilePath = @".\settings\MapperSelections.xml";
-        private static readonly string XsdPath = Path.Combine(
-            AppDomain.CurrentDomain.BaseDirectory, "settings", "schemas", "MapperSelections.xsd");
+        private static readonly string XsdPath = @".\settings\schemas\MapperSelections.xsd";
 
         private static bool _isRetryingLoad;
 

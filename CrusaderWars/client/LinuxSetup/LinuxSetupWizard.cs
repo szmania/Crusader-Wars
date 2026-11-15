@@ -179,7 +179,7 @@ namespace CrusaderWars.client.LinuxSetup
             // Attila Path
             string? attilaPath = _steamManager.GetAttilaPath() ?? "Not Found";
             bool attilaFound = attilaPath != "Not Found";
-            _detectionStep.SetDetectionResult("Attila", attilaPath, attilaFound);
+            _detectionStep.SetDetectionResult("attila", attilaPath, attilaFound);
             progressBar.Value = 30;
 
             // Populate LinuxSetupConfig with detection results

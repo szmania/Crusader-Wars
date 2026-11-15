@@ -8,11 +8,11 @@ namespace CrusaderWars.games
     {
         public override string GetProcessName() => "Attila";
         public override string GetExecutableName() => "Attila.exe";
-public override string GetGameType() => "Attila";
+        public override string GetGameType() => "attila";
 
-        public override string GetBattleFilesPath() => Path.Combine(Path.GetDirectoryName(GetGamePath())!, "data\\battle files");
-        public override string GetScriptPath() => Path.Combine(Path.GetDirectoryName(GetGamePath())!, "data\\battle files\\script\\tut_tutorial_battle");
-        public override string GetBattleTemplatePath() => Path.Combine(Path.GetDirectoryName(GetGamePath())!, "data\\battle files\\script");
+        public override string GetBattleFilesPath() => Path.Combine(Path.GetDirectoryName(GetGamePath())!, "data\\attila_battle_files");
+        public override string GetScriptPath() => Path.Combine(Path.GetDirectoryName(GetGamePath())!, "data\\attila_battle_files\\script\\tut_tutorial_battle");
+        public override string GetBattleTemplatePath() => Path.Combine(Path.GetDirectoryName(GetGamePath())!, "data\\attila_battle_files\\script");
 
         public override string GetLogPath()
         {
@@ -69,7 +69,7 @@ public override string GetGameType() => "Attila";
 
         public override string GetShortcutArguments() => "used_mods_cc.txt";
 
-        public override string GetGamePath() => client.ModOptions.GetGamePath("Attila");
+        public override string GetGamePath() => client.ModOptions.GetGamePath("attila");
 
     }
 }

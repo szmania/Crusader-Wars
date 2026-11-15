@@ -1080,9 +1080,9 @@ namespace CrusaderWars.twbattle
             // but proceed immediately if Rome 2 exits on its own. Attila is unaffected.
             if (UnitMappers_BETA.ResolvedBattleGameType == "rome_2")
             {
-                Program.Logger.Debug("Rome 2 battle ended. Waiting up to 20 seconds before closing Rome 2 (or until it exits on its own)...");
+                Program.Logger.Debug("Rome 2 battle ended. Waiting up to 30 seconds before closing Rome 2 (or until it exits on its own)...");
                 var rome2DelayStopwatch = Stopwatch.StartNew();
-                while (rome2DelayStopwatch.Elapsed.TotalSeconds < 20)
+                while (rome2DelayStopwatch.Elapsed.TotalSeconds < 30)
                 {
                     if (token.IsCancellationRequested)
                     {

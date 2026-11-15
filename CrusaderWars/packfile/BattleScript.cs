@@ -208,8 +208,8 @@ scripting.AddEventCallBack(""BattleUnitAttacksWalls"", walls_attacked_func);
             if (UnitMappers_BETA.ResolvedBattleGameType == "rome_2")
             {
 showUI = @"
-    -- Show Battle UI
-    bm:enable_cinematic_ui(false, true, false);
+-- Show Battle UI
+bm:enable_cinematic_ui(false, true, false);
 ";
 endBattleLog = @"
     dev.log(""Battle has finished"")

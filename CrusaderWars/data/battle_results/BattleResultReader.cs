@@ -276,7 +276,7 @@ namespace CrusaderWars.data.battle_results
 
             // Persist the resolved path into the matching setting so ModOptions.GetLogPath
             // and other readers observe the same value for the active game.
-            if (gameType == "Rome2")
+            if (gameType == "rome_2")
                 Properties.Settings.Default.VAR_log_rome2 = logPath;
             else
                 Properties.Settings.Default.VAR_log_attila = logPath;

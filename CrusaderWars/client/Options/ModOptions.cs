@@ -111,9 +111,24 @@ if (optionsValuesCollection.TryGetValue("BattleScale", out var value) && int.Try
                     break;
                 default:
                     return;
-
             }
+        }
 
+        /// <summary>Closes the Total War game used for the current battle (Attila or Rome 2),
+        /// honouring the "Close Total War game after battle" option. Falls back to the legacy
+        /// "CloseAttila" option value when the new option is absent (older Options.xml).</summary>
+        public static void CloseTotalWarGame()
+        {
+            string optionValue = optionsValuesCollection.TryGetValue("CloseTotalWarGame", out var value)
+                ? value
+                : (optionsValuesCollection.TryGetValue("CloseAttila", out var legacy) ? legacy : "Enabled");
+
+            if (optionValue != "Enabled") return;
+
+            if (CrusaderWars.unit_mapper.UnitMappers_BETA.ResolvedBattleGameType == "rome_2")
+                ShutdownProcess("Rome2");
+            else
+                ShutdownAttila();
         }
 
         public enum ArmiesSetup
@@ -193,7 +208,7 @@ if (optionsValuesCollection.TryGetValue("BattleScale", out var value) && int.Try
                 case "Enabled":
                     return sum.ToString();
                 default:
-                    return sum.ToString(); 
+                    return sum.ToString();
             }
             */
 
@@ -268,8 +283,14 @@ if (optionsValuesCollection.TryGetValue("BattleScale", out var value) && int.Try
 
         private static void ShutdownAttila()
         {
-            Process[] process_attila = Process.GetProcessesByName("Attila");
-            foreach (Process worker in process_attila)
+            ShutdownProcess("Attila");
+        }
+
+        /// <summary>Kills every running process with the given name (e.g. "Attila", "Rome2").</summary>
+        private static void ShutdownProcess(string processName)
+        {
+            Process[] processes = Process.GetProcessesByName(processName);
+            foreach (Process worker in processes)
             {
                 worker.Kill();
                 worker.WaitForExit();
@@ -277,7 +298,7 @@ if (optionsValuesCollection.TryGetValue("BattleScale", out var value) && int.Try
             }
         }
 
-public static int GetCommanderWoundedChance()
+        public static int GetCommanderWoundedChance()
         {
             if (optionsValuesCollection.TryGetValue("CommanderWoundedChance", out var value) && int.TryParse(value, out int result))
             {
@@ -475,8 +496,8 @@ public static int GetKnightPrisonerChance()
         {
             return gameType switch
             {
-                "Attila" => Properties.Settings.Default.VAR_attila_path,
-                "Rome2" => Properties.Settings.Default.VAR_rome2_path,
+                "attila" => Properties.Settings.Default.VAR_attila_path,
+                "rome_2" => Properties.Settings.Default.VAR_rome2_path,
                 _ => string.Empty
             };
         }
@@ -485,8 +506,8 @@ public static int GetKnightPrisonerChance()
         {
             return gameType switch
             {
-                "Attila" => Properties.Settings.Default.VAR_log_attila,
-                "Rome2" => Properties.Settings.Default.VAR_log_rome2,
+                "attila" => Properties.Settings.Default.VAR_log_attila,
+                "rome_2" => Properties.Settings.Default.VAR_log_rome2,
                 _ => string.Empty
             };
         }
@@ -495,10 +516,10 @@ public static int GetKnightPrisonerChance()
         {
             switch (gameType)
             {
-                case "Attila":
+                case "attila":
                     Properties.Settings.Default.VAR_attila_path = path;
                     break;
-                case "Rome2":
+                case "rome_2":
                     Properties.Settings.Default.VAR_rome2_path = path;
                     break;
             }
@@ -508,7 +529,7 @@ public static int GetKnightPrisonerChance()
         {
             string activeGameType = Properties.Settings.Default.ActiveGameType;
             if (string.IsNullOrEmpty(activeGameType))
-                return "Attila"; // Default
+                return "attila"; // Default
             return activeGameType;
         }
 
@@ -533,7 +554,7 @@ public static int GetKnightPrisonerChance()
         }
 
         // Backward-compatible accessors
-        public static string GetAttilaPath() => GetGamePath("Attila");
-        public static string GetRome2Path() => GetGamePath("Rome2");
+        public static string GetAttilaPath() => GetGamePath("attila");
+        public static string GetRome2Path() => GetGamePath("rome_2");
     }
 }

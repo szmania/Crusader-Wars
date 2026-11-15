@@ -283,7 +283,7 @@ namespace CrusaderWars.mod_manager
                     }
                     else
                     {
-                        ModsPaths.Add(new Mod(false, LoadBitmapWithReducedSize(@".\data\mod manager\noimage.png"), fileName, ModLocalization.Data, file));
+                        ModsPaths.Add(new Mod(false, LoadBitmapWithReducedSize(@".\data\mod_manager\noimage.png"), fileName, ModLocalization.Data, file));
                     }
                 }
             }
@@ -336,8 +336,8 @@ namespace CrusaderWars.mod_manager
             ReadInstalledMods(gameType);
 
             //  SET AT MOD MANAGER
-            Bitmap? steamImg = LoadBitmapWithReducedSize(@".\data\mod manager\steamlogo.png");
-            Bitmap? dataImg = LoadBitmapWithReducedSize(@".\data\mod manager\folder.png");
+            Bitmap? steamImg = LoadBitmapWithReducedSize(@".\data\mod_manager\steamlogo.png");
+            Bitmap? dataImg = LoadBitmapWithReducedSize(@".\data\mod_manager\folder.png");
             if (ModManagerControl != null)
             {
                 foreach (var mod in ModsPaths)
@@ -361,7 +361,7 @@ namespace CrusaderWars.mod_manager
             string imageToLoad = path;
             if (string.IsNullOrEmpty(imageToLoad) || !File.Exists(imageToLoad))
             {
-                imageToLoad = @".\data\mod manager\noimage.png";
+                imageToLoad = @".\data\mod_manager\noimage.png";
             }
 
             try
@@ -404,7 +404,7 @@ namespace CrusaderWars.mod_manager
         [SupportedOSPlatform("windows")]
         public static void SaveActiveMods()
         {
-            string activeModsPath = @".\data\mod manager\active_mods.txt";
+            string activeModsPath = @".\data\mod_manager\active_mods.txt";
             Directory.CreateDirectory(Path.GetDirectoryName(activeModsPath)!); // Ensure the folder exists before writing
             var activeMods = ModsPaths.Where(mod => mod.IsEnabled()).Select(x => x.GetName()).ToArray();
             File.WriteAllLines(activeModsPath, activeMods);
@@ -428,7 +428,7 @@ namespace CrusaderWars.mod_manager
         [SupportedOSPlatform("windows")]
         static void SetActiveMods()
         {
-            string activeModsPath = @".\data\mod manager\active_mods.txt";
+            string activeModsPath = @".\data\mod_manager\active_mods.txt";
             if (!File.Exists(activeModsPath))
             {
                 // First run or fresh install: no saved active mods yet, so leave all mods disabled.

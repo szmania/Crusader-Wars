@@ -17,7 +17,7 @@ namespace CrusaderWars.games
         public abstract string GetWorkshopPath();
         public abstract string GetModActivationFileName();
         public abstract string GetSteamAppId();
-public abstract string GetShortcutArguments();
+        public abstract string GetShortcutArguments();
         public abstract string GetBattleFilesPath();
         public abstract string GetScriptPath();
         public abstract string GetBattleTemplatePath();
@@ -95,7 +95,7 @@ public abstract string GetShortcutArguments();
 
             string fileName = Path.GetFileName(path).ToLower();
             string expectedExe = GetExecutableName().ToLower();
-            
+
             return fileName == expectedExe || fileName == $"{expectedExe}.exe";
         }
 

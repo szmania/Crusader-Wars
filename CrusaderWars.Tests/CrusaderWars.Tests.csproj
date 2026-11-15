@@ -27,4 +27,13 @@
     <Compile Remove="Rome2GameServiceTests.cs" />
     <Compile Remove="SecurityTests.cs" />
   </ItemGroup>
+  <!-- Section 18 Phase D tests live under tests/CrusaderWars.Tests/ (the plan's target paths).
+       That tree has no project of its own, so the three Phase D files are compiled into this
+       buildable test project explicitly. Only the Phase D files are included; the rest of the
+       tests/ tree is not wired in. -->
+  <ItemGroup>
+    <Compile Include="..\tests\CrusaderWars.Tests\TestHelpers\TestFileSystem.cs" />
+    <Compile Include="..\tests\CrusaderWars.Tests\Localization\UnitsCardsNamesTests.cs" />
+    <Compile Include="..\tests\CrusaderWars.Tests\Migration\UnitsCardsNamesMigrationTests.cs" />
+  </ItemGroup>
 </Project>

@@ -8,7 +8,7 @@ namespace CrusaderWars.games
     {
         public override string GetProcessName() => "Rome2";
         public override string GetExecutableName() => "Rome2.exe";
-public override string GetGameType() => "Rome2";
+        public override string GetGameType() => "rome_2";
 
         public override string GetBattleFilesPath() => Path.Combine(Path.GetDirectoryName(GetGamePath())!, "data\\rome_2_battle_files");
         public override string GetScriptPath() => Path.Combine(Path.GetDirectoryName(GetGamePath())!, "data\\rome_2_battle_files\\script\\tut_tutorial_battle");
@@ -69,7 +69,7 @@ public override string GetGameType() => "Rome2";
 
         public override string GetShortcutArguments() => "used_mods_cc.txt";
 
-        public override string GetGamePath() => client.ModOptions.GetGamePath("Rome2");
-    
+        public override string GetGamePath() => client.ModOptions.GetGamePath("rome_2");
+
     }
 }

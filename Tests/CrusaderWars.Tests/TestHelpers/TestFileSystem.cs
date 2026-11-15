@@ -16,6 +16,8 @@ namespace CrusaderWars.Tests.TestHelpers
         public string UnitMappersPath { get; }
         public string DataPath { get; }
         public string UnitsCardsNamesPath { get; }
+        public string UnitsCardsNamesAttilaPath { get; }
+        public string UnitsCardsNamesRome2Path { get; }
 
         public TempTestEnvironment()
         {
@@ -24,10 +26,14 @@ namespace CrusaderWars.Tests.TestHelpers
             UnitMappersPath = Path.Combine(RootPath, "unit mappers");
             DataPath = Path.Combine(RootPath, "data");
             UnitsCardsNamesPath = Path.Combine(DataPath, "units_cards_names");
+            UnitsCardsNamesAttilaPath = Path.Combine(UnitsCardsNamesPath, "attila");
+            UnitsCardsNamesRome2Path = Path.Combine(UnitsCardsNamesPath, "rome_2");
 
             Directory.CreateDirectory(SettingsPath);
             Directory.CreateDirectory(UnitMappersPath);
             Directory.CreateDirectory(UnitsCardsNamesPath);
+            Directory.CreateDirectory(UnitsCardsNamesAttilaPath);
+            Directory.CreateDirectory(UnitsCardsNamesRome2Path);
         }
 
         /// <summary>
@@ -167,6 +173,25 @@ namespace CrusaderWars.Tests.TestHelpers
             sb.AppendLine("</Options>");
 
             File.WriteAllText(Path.Combine(SettingsPath, "Options.xml"), sb.ToString());
+        }
+
+        /// <summary>
+        /// Creates a mock unit cards localization directory for "fireforged empire" under the
+        /// game-type subfolder (data\units_cards_names\{gameType}\fireforged empire), matching
+        /// the post-migration layout used by UnitsCardsNames.LocRoot.
+        /// </summary>
+        public string CreateFireforgedEmpireLocDirInGameFolder(string gameType = "attila")
+        {
+            string gameRoot = gameType == "rome_2" ? UnitsCardsNamesRome2Path : UnitsCardsNamesAttilaPath;
+            var locDir = Path.Combine(gameRoot, "fireforged empire");
+            Directory.CreateDirectory(locDir);
+
+            File.WriteAllText(Path.Combine(locDir, "unit_cards.loc"),
+                "land_units_onscreen_name_att_unit_infantry_swordsmen\tFireforged Swordsmen\t\n" +
+                "land_units_onscreen_name_att_unit_cavalry_knights\tFireforged Knights\t\n" +
+                "land_units_onscreen_name_att_unit_archers_longbow\tFireforged Longbowmen\t\n");
+
+            return locDir;
         }
 
         public void Dispose()

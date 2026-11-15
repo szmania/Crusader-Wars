@@ -18,6 +18,7 @@
   <!-- Unit tests live in the separate CrusaderWars.Tests project; keep them out of the shipped app assembly. -->
   <ItemGroup>
     <Compile Remove="tests\**" />
+    <Compile Remove="unit_mapper\schemas\**" />
   </ItemGroup>
 
     <ItemGroup>
@@ -197,6 +198,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Remove="unit_mapper\schemas\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -204,6 +206,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Remove="unit_mapper\schemas\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -390,5 +393,8 @@
       <Content Include="data\rome_2_battle_files\**\*">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="unit_mappers\" />
     </ItemGroup>
 </Project>

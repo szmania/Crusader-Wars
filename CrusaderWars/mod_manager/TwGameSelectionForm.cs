@@ -201,13 +201,13 @@ namespace CrusaderWars.mod_manager
             // For each range, determine which games have a mapper folder covering it.
             var rows = new List<YearRangeRow>();
             var storedSelections = MapperSelectionsStore.GetSelectionsForTag(playthroughTag);
-            var storedAttilaFolders = storedSelections.Where(s => s.Game.Equals("Attila", StringComparison.OrdinalIgnoreCase)).Select(s => s.Folder).ToHashSet(StringComparer.OrdinalIgnoreCase);
-            var storedRome2Folders = storedSelections.Where(s => s.Game.Equals("Rome2", StringComparison.OrdinalIgnoreCase)).Select(s => s.Folder).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var storedAttilaFolders = storedSelections.Where(s => s.Game.Equals("attila", StringComparison.OrdinalIgnoreCase)).Select(s => s.Folder).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var storedRome2Folders = storedSelections.Where(s => s.Game.Equals("rome_2", StringComparison.OrdinalIgnoreCase)).Select(s => s.Folder).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             foreach (var (start, end) in ranges)
             {
-                var attilaCovers = entries.Where(e => e.Game == "Attila" && e.StartYear <= start && e.EndYear >= end).ToList();
-                var rome2Covers = entries.Where(e => e.Game == "Rome2" && e.StartYear <= start && e.EndYear >= end).ToList();
+                var attilaCovers = entries.Where(e => e.Game == "attila" && e.StartYear <= start && e.EndYear >= end).ToList();
+                var rome2Covers = entries.Where(e => e.Game == "rome_2" && e.StartYear <= start && e.EndYear >= end).ToList();
 
                 // Skip ranges where neither game has coverage
                 if (!attilaCovers.Any() && !rome2Covers.Any()) continue;
