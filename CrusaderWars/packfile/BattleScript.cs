@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using CrusaderWars.unit_mapper;
 
 
 namespace CrusaderWars
@@ -142,6 +143,8 @@ function kills()
 
             string siegeLogic = "";
             string victoryLogic;
+            string showUI = "";
+            string endBattleLog = "";
 
             if (isSiege)
             {
@@ -202,8 +205,16 @@ scripting.AddEventCallBack(""BattleUnitAttacksWalls"", walls_attacked_func);
 		dev.log(""Victory"")
 	end;";
             }
-
-
+            if (UnitMappers_BETA.ResolvedBattleGameType == "rome_2")
+            {
+showUI = @"
+    -- Show Battle UI
+    bm:enable_cinematic_ui(false, true, false);
+";
+endBattleLog = @"
+    dev.log(""Battle has finished"")
+";
+            }
             string original = $@"
 -----------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------
@@ -249,18 +260,23 @@ local date = os.date(""\A, %c"");
 dev.log(""\n"" .. date);
 dev.log""\n Script Loaded"";
 
+{showUI}
 
 bm:setup_victory_callback(function() file_debug() end);
+bm:register_phase_change_callback(""Deployment"", function() Deployment_Phase() end);
+bm:register_phase_change_callback(""Deployed"", function() Start_Battle() end);
 bm:register_phase_change_callback(""Complete"", function() file_debug() end);
 
 
 function Deployment_Phase()
 	bm:out(""Battle is in deployment phase"");
+    dev.log(""Battle is in deployment phase"")
+
 end;
 
 function Start_Battle()
 	bm:out(""Battle is Starting"");
-
+    dev.log(""Battle is Starting"")
 end;
 
 local scripting = require ""lua_scripts.episodicscripting""
@@ -290,6 +306,7 @@ function file_debug()
 	kills();
 	commander_system();
 	dev.log(""-----PRINT ENDED-----!!"")
+    {endBattleLog}
 
 end;";
             File.WriteAllText(filePath, original);
