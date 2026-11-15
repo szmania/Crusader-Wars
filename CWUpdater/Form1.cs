@@ -622,6 +622,11 @@ del ""%~f0""
                         }
                     }
 
+
+                    // Migrate legacy flat units_cards_names folders into attila\ after the
+                    // copy loop, so package-shipped data\units_cards_names\{game}\... content
+                    // lands first and the attila-exists guard prevents clobbering (C5).
+                    await MigrateUnitsCardsNamesFolder(applicationPath);
                     // Step 5: Clean up backup if update was successful
                     Logger.Log("Update successful, deleting backup.");
                     Directory.Delete(backupPath, true);
@@ -899,6 +904,10 @@ del ""%~f0""
                         }
                     }
 
+
+                    // Migrate legacy flat units_cards_names folders (mappers packages may
+                    // also ship loc folders under data\) after the merge/cleanup steps (C6).
+                    await MigrateUnitsCardsNamesFolder(AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", ""));
                     // Step 6: Clean up backup if update was successful
                     Logger.Log("Update successful, deleting backup.");
                     Directory.Delete(backupPath, true);
@@ -1041,6 +1050,7 @@ del ""%~f0""
                 string battleFilesDir = Path.Combine(applicationPath, "data", "attila_battle_files");
                 string rome2BattleFilesDir = Path.Combine(applicationPath, "data", "rome_2_battle_files");
                 string saveFileDataDir = Path.Combine(applicationPath, "data", "save_file_data");
+                string unitsCardsNamesDir = Path.Combine(applicationPath, "data", "units_cards_names");
 
                 var existingFiles = Directory.GetFiles(applicationPath, "*", SearchOption.AllDirectories);
                 var newFiles = Directory.GetFiles(tempDirectory, "*", SearchOption.AllDirectories);
@@ -1053,7 +1063,8 @@ del ""%~f0""
                         file.StartsWith(unitMappersDir, StringComparison.OrdinalIgnoreCase) ||
                         file.StartsWith(battleFilesDir, StringComparison.OrdinalIgnoreCase) ||
                         file.StartsWith(rome2BattleFilesDir, StringComparison.OrdinalIgnoreCase) ||
-                        file.StartsWith(saveFileDataDir, StringComparison.OrdinalIgnoreCase))
+                        file.StartsWith(saveFileDataDir, StringComparison.OrdinalIgnoreCase) ||
+                        file.StartsWith(unitsCardsNamesDir, StringComparison.OrdinalIgnoreCase))
                         continue;
 
                     string relativePath = file.Substring(applicationPath.Length + 1);
@@ -1079,7 +1090,8 @@ del ""%~f0""
                         dir.StartsWith(unitMappersDir, StringComparison.OrdinalIgnoreCase) ||
                         dir.StartsWith(battleFilesDir, StringComparison.OrdinalIgnoreCase) ||
                         dir.StartsWith(rome2BattleFilesDir, StringComparison.OrdinalIgnoreCase) ||
-                        dir.StartsWith(saveFileDataDir, StringComparison.OrdinalIgnoreCase))
+                        dir.StartsWith(saveFileDataDir, StringComparison.OrdinalIgnoreCase) ||
+                        dir.StartsWith(unitsCardsNamesDir, StringComparison.OrdinalIgnoreCase))
                         continue;
 
                     string relativeDirPath = dir.Substring(applicationPath.Length + 1);
@@ -1097,8 +1109,69 @@ del ""%~f0""
         }
 
 
-        //
-        //  BACKUP FUNCTIONS
+
+        // Packaging note (C8): future app/mappers packages should ship
+        // data\units_cards_names\{game}\{mapper}\ directly; this migration exists
+        // only for pre-existing installs with a legacy flat units_cards_names layout.
+        // No backup/rollback here: ApplyUpdate/ApplyUnitMappersUpdate already take a
+        // full app_backup before touching anything, and RestoreBackup covers failure.
+        private async Task MigrateUnitsCardsNamesFolder(string mainAppRoot)
+        {
+            string unitsCardsNamesRoot = Path.Combine(mainAppRoot, "data", "units_cards_names");
+            string attilaDir = Path.Combine(unitsCardsNamesRoot, "attila");
+            string rome2Dir = Path.Combine(unitsCardsNamesRoot, "rome_2");
+
+            // Idempotent guard: once attila/ exists the migration has already run.
+            if (Directory.Exists(attilaDir))
+            {
+                Logger.Log("units_cards_names migration already completed. Skipping.");
+                return;
+            }
+
+            if (!Directory.Exists(unitsCardsNamesRoot))
+            {
+                Logger.Log("units_cards_names directory not found. Nothing to migrate.");
+                return;
+            }
+
+            Logger.Log("Checking for legacy flat units_cards_names structure...");
+
+            var legacySubdirs = Directory.GetDirectories(unitsCardsNamesRoot)
+                .Select(d => Path.GetFileName(d))
+                .Where(name => !name.Equals("attila", StringComparison.OrdinalIgnoreCase)
+                            && !name.Equals("rome_2", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            if (!legacySubdirs.Any())
+            {
+                Logger.Log("No legacy flat units_cards_names folders found. Migration not needed.");
+                Directory.CreateDirectory(attilaDir);
+                Directory.CreateDirectory(rome2Dir);
+                return;
+            }
+
+            Logger.Log($"Legacy flat units_cards_names structure detected with {legacySubdirs.Count} folder(s). Starting migration...");
+
+            Directory.CreateDirectory(attilaDir);
+            Directory.CreateDirectory(rome2Dir);
+
+            foreach (var subdirName in legacySubdirs)
+            {
+                string sourcePath = Path.Combine(unitsCardsNamesRoot, subdirName);
+                string destPath = Path.Combine(attilaDir, subdirName);
+
+                if (Directory.Exists(destPath))
+                {
+                    Logger.Log($"Destination '{destPath}' already exists. Skipping '{subdirName}'.");
+                    continue;
+                }
+
+                Logger.Log($"Migrating '{subdirName}' into attila\\.");
+                await RetryActionAsync(() => MoveDirectoryCrossVolume(sourcePath, destPath), $"Migrate units_cards_names {subdirName}");
+            }
+
+            Logger.Log("units_cards_names migration complete.");
+        }
         //
 
         private void BackupApplicationFiles(string applicationPath, string backupPath)

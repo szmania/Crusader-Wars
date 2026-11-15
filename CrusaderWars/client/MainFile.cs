@@ -85,6 +85,8 @@ namespace CrusaderWars
                 Directory.CreateDirectory(@".\unit_mappers\attila");
                 Directory.CreateDirectory(@".\unit_mappers\rome_2");
                 Directory.CreateDirectory(@".\unit_mappers\schemas");
+                Directory.CreateDirectory(@".\data\units_cards_names\attila");
+                Directory.CreateDirectory(@".\data\units_cards_names\rome_2");
                 Program.Logger.Debug("Required directories created/verified.");
             }
             catch (Exception ex)
@@ -101,6 +103,7 @@ namespace CrusaderWars
             Program.Logger.Debug("HomePage initializing...");
             CreateRequiredDirectories();
             data.MigrationService.MigrateUnitMappersDirectory();
+            data.MigrationService.MigrateUnitsCardsNamesDirectory();
             LoadFont();
             InitializeComponent();
             this.Font = new Font("Microsoft Sans Serif", 8.25f);
@@ -2413,9 +2416,10 @@ private void CreateGameShortcut()
                                 DataSearch.Search(log);
 
                                 Program.Logger.Debug("Setting playthrough...");
-                                SetPlaythrough(); // sets _gameType from ResolvedBattleGameType (5.15.4)
+                                var requiredMods = SetPlaythrough(); // resolves _gameType and returns required mods (applied after ReadInstalledMods — see §17.4)
                                 Program.Logger.Debug($"Reading installed mods for game type: {_gameType}...");
                                 AttilaModManager.ReadInstalledMods(_gameType);
+                                AttilaModManager.SetLoadingRequiredMods(requiredMods); // must run AFTER ReadInstalledMods so it flags the freshly populated ModsPaths (chicken-and-egg fix, §17)
                                 UpdateLoadingScreenUnitMapperMessage(UnitMappers_BETA.GetLoadedUnitMapperString(_gameType));
                                 Program.Logger.Debug($"Creating user mods file for game type: {_gameType}...");
                                 AttilaModManager.CreateUserModsFile(_gameType);
@@ -2785,9 +2789,11 @@ private void CreateGameShortcut()
 
                 // Re-initialize mod and unit mapper context. Order matters: SetPlaythrough
                 // resolves the battle game type (5.15.4) before either mod-manager call, so
-                // both operate on the same game.
-                SetPlaythrough(); // sets _gameType from ResolvedBattleGameType
+                // both operate on the same game. SetLoadingRequiredMods must run AFTER
+                // ReadInstalledMods so it flags the freshly populated ModsPaths (§17).
+                var requiredMods = SetPlaythrough(); // resolves _gameType and returns required mods
                 AttilaModManager.ReadInstalledMods(_gameType);
+                AttilaModManager.SetLoadingRequiredMods(requiredMods); // must run AFTER ReadInstalledMods so it flags the freshly populated ModsPaths (chicken-and-egg fix, §17)
                 AttilaModManager.CreateUserModsFile(_gameType);
                 Program.Logger.Debug($"Continued battle using game type: {_gameType}");
 
@@ -3061,7 +3067,7 @@ private void CreateGameShortcut()
                     return "Selected"; // A safe default
             }
         }
-        void SetPlaythrough()
+        List<string> SetPlaythrough()
         {
             Program.Logger.Debug("Setting playthrough...");
             XmlDocument xmlDoc = new XmlDocument();
@@ -3091,7 +3097,7 @@ private void CreateGameShortcut()
             var requiredMods = UnitMappers_BETA.GetUnitMapperModFromTagAndTimePeriod(tagName, activeSubmods);
             _gameType = UnitMappers_BETA.ResolvedBattleGameType;
             Program.Logger.Debug($"Battle game type resolved: {_gameType}");
-            AttilaModManager.SetLoadingRequiredMods(requiredMods);
+            return requiredMods;
         }
 
 
