@@ -55,6 +55,13 @@ namespace CrusaderWars.mod_manager
                 settings.ValidationEventHandler += (sender, args) =>
                 {
                     // Ignore missing sha256 attribute errors
+                    // Ignore unknown units_cards_names_folder attribute errors: a stale shipped
+                    // mods.xsd from an older mappers package must not brick custom mappers that
+                    // use the new attribute (same tolerance rationale as sha256 above).
+                    if (args.Message.Contains("'units_cards_names_folder'"))
+                    {
+                        return;
+                    }
                     if (args.Message.Contains("'sha256'"))
                     {
                         return;

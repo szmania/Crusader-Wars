@@ -28,7 +28,6 @@ namespace CrusaderWars.locs
         };
         public static void RemoveFiles()
         {
-            string path = Path.Combine(".", "data", UnitMappers_BETA.BattleFilesDirName, "text", "db");
             string path = $@".\data\{UnitMappers_BETA.BattleFilesDirName}\text\db";
             foreach (var file in Directory.GetFiles(path))
             {
@@ -40,6 +39,68 @@ namespace CrusaderWars.locs
             }
         }
 
+        // Root of the game-scoped units_cards_names tree. ResolvedBattleGameType values
+        // ("attila"/"rome_2") already match the folder names, so no mapping is needed.
+        private static string LocRoot => @$".\data\units_cards_names\{UnitMappers_BETA.ResolvedBattleGameType}";
+
+        // Legacy flat root, kept as a fallback for installs not yet migrated to the
+        // game-type subfolder layout.
+        private static string LegacyLocRoot => @".\data\units_cards_names";
+
+        // Mapper-name -> loc base folder mapping (extracted from the formerly duplicated
+        // switches in ChangeUnitsCardsNames and GetUnitScreenNames).
+        private static string? ResolveBaseFolderName(string mapperName)
+        {
+            return mapperName switch
+            {
+                "OfficialCC_DefaultCK3_EarlyMedieval_919Mod" => "anno domini",
+                "OfficialCC_DefaultCK3_HighMedieval_MK1212Mod" or
+                "OfficialCC_DefaultCK3_LateMedieval_MK1212Mod" or
+                "OfficialCC_DefaultCK3_Renaissance_MK1212Mod" => "mk1212",
+                "OfficialCC_TheFallenEagle_AgeOfJustinian" => "age of justinian",
+                "OfficialCC_TheFallenEagle_FireforgedEmpire" => "fireforged empire",
+                "OfficialCC_RealmsInExile_TheDawnlessDays" => "dawnless days",
+                "OfficialCC_AGOT_SevenKingdoms" => "seven_kingdoms",
+                "OfficialCC_BookmarksPlus_AncientEmpires" => "ancient_empires",
+                "OfficialCC_BookmarksPlus_FireforgedEmpire" => "fireforged empire",
+                "OfficialCC_BookmarksPlus_AgeOfJustinian" => "age of justinian",
+                "Custom" => ModOptions.GetSelectedCustomMapper(),
+                _ => null
+            };
+        }
+
+        // The units_cards_names_folder attribute from the active mapper's Mods.xml wins;
+        // otherwise the legacy switch mapping. Empty string when neither resolves.
+        private static string EffectiveLocFolder(string mapperName)
+        {
+            return !string.IsNullOrEmpty(UnitMappers_BETA.MapperUnitsCardsNamesFolder)
+                ? UnitMappers_BETA.MapperUnitsCardsNamesFolder
+                : (ResolveBaseFolderName(mapperName) ?? "");
+        }
+
+        // Generic fallback: recursive search under the game-scoped root first, then the
+        // legacy flat root (covers a not-yet-migrated install).
+        private static string[] GetGenericLocFiles()
+        {
+            if (Directory.Exists(LocRoot))
+            {
+                var files = Directory.GetFiles(LocRoot, "*.loc", SearchOption.AllDirectories);
+                if (files.Any())
+                {
+                    Program.Logger.Debug($"Generic loc search using game-scoped root '{LocRoot}' ({files.Length} files).");
+                    return files;
+                }
+            }
+            if (Directory.Exists(LegacyLocRoot))
+            {
+                var files = Directory.GetFiles(LegacyLocRoot, "*.loc", SearchOption.AllDirectories);
+                Program.Logger.Debug($"Generic loc search falling back to legacy flat root '{LegacyLocRoot}' ({files.Length} files).");
+                return files;
+            }
+            Program.Logger.Debug("Generic loc search found no loc files in either root.");
+            return Array.Empty<string>();
+        }
+
         public static void ChangeUnitsCardsNames(string Mapper_Name, List<Army> attacker_armies, List<Army> defender_armies)
         {
             SearchMAANamesInLocalizationFiles(attacker_armies);
@@ -47,54 +108,14 @@ namespace CrusaderWars.locs
 
             var armiesCollection = attacker_armies.Concat(defender_armies).ToList();
 
-            switch (Mapper_Name)
+            string baseFolder = EffectiveLocFolder(Mapper_Name);
+            if (string.IsNullOrWhiteSpace(baseFolder))
             {
-                case "OfficialCC_DefaultCK3_EarlyMedieval_919Mod":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("anno domini"), armiesCollection);
-                    break;
-                case "OfficialCC_DefaultCK3_HighMedieval_MK1212Mod":
-                case "OfficialCC_DefaultCK3_LateMedieval_MK1212Mod":
-                case "OfficialCC_DefaultCK3_Renaissance_MK1212Mod":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("mk1212"), armiesCollection);
-                    break;
-                case "OfficialCC_TheFallenEagle_AgeOfJustinian":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("age of justinian"), armiesCollection);
-                    break;
-                case "OfficialCC_TheFallenEagle_FireforgedEmpire":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("fireforged empire"), armiesCollection);
-                    break;
-                case "OfficialCC_RealmsInExile_TheDawnlessDays":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("dawnless days"), armiesCollection);
-                    break;
-                case "OfficialCC_AGOT_SevenKingdoms":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("seven_kingdoms"), armiesCollection);
-                    break;
-                case "OfficialCC_BookmarksPlus_AncientEmpires":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("ancient_empires"), armiesCollection);
-                    break;
-                case "OfficialCC_BookmarksPlus_FireforgedEmpire":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("fireforged empire"), armiesCollection);
-                    break;
-                case "OfficialCC_BookmarksPlus_AgeOfJustinian":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("age of justinian"), armiesCollection);
-                    break;
-                case "Custom":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough(ModOptions.GetSelectedCustomMapper()), armiesCollection);
-                    break;
-                default:
-                    // Fallback: if mapper name is unknown, try to find loc files in a generic way
-                    Program.Logger.Debug($"Unknown mapper name '{Mapper_Name}' in ChangeUnitsCardsNames. Attempting to find localization files generically.");
-                    string genericLocPath = @".\data\units_cards_names";
-                    if (Directory.Exists(genericLocPath))
-                    {
-                        var genericLocFiles = Directory.GetFiles(genericLocPath, "*.loc", SearchOption.AllDirectories);
-                        if (genericLocFiles.Any())
-                        {
-                            EditUnitCardsFiles(genericLocFiles, armiesCollection);
-                        }
-                    }
-                    break;
+                Program.Logger.Debug($"Could not resolve a loc folder for mapper '{Mapper_Name}'. Using generic loc fallback.");
+                EditUnitCardsFiles(GetGenericLocFiles(), armiesCollection);
+                return;
             }
+            EditUnitCardsFiles(GetLocFilesForPlaythrough(baseFolder), armiesCollection);
 
         }
 
@@ -103,7 +124,7 @@ namespace CrusaderWars.locs
             List<string> allLocFiles = new List<string>();
 
             // 1. Get base files
-            string baseLocPath = @$".\data\units_cards_names\{baseFolderName}\";
+            string baseLocPath = Path.Combine(LocRoot, baseFolderName);
             if (Directory.Exists(baseLocPath))
             {
                 allLocFiles.AddRange(Directory.GetFiles(baseLocPath));
@@ -121,7 +142,7 @@ namespace CrusaderWars.locs
                 // 3. Get submod files
                 foreach (var submodTag in activeSubmods)
                 {
-                    string submodLocPath = @$".\data\units_cards_names\{baseFolderName}_{submodTag}\";
+                    string submodLocPath = Path.Combine(LocRoot, baseFolderName + "_" + submodTag);
                     if (Directory.Exists(submodLocPath))
                     {
                         Program.Logger.Debug($"Found and adding localization files from submod folder: '{submodLocPath}'");
@@ -314,7 +335,6 @@ namespace CrusaderWars.locs
 
                     reader.Dispose();
                 }
-                string battle_files_path = Path.Combine(".", "data", UnitMappers_BETA.BattleFilesDirName, "text", "db", loc_file_name);
                 string battle_files_path = $@".\data\{UnitMappers_BETA.BattleFilesDirName}\text\db\{loc_file_name}";
 
                 File.WriteAllText(file_to_edit_path, edited_names);
@@ -407,55 +427,16 @@ namespace CrusaderWars.locs
         public static Dictionary<string, string> GetUnitScreenNames(string Mapper_Name)
         {
             var screenNames = new Dictionary<string, string>();
+            string baseFolder = EffectiveLocFolder(Mapper_Name);
             string[] locFiles;
-
-            switch (Mapper_Name)
+            if (string.IsNullOrWhiteSpace(baseFolder))
             {
-                case "OfficialCC_DefaultCK3_EarlyMedieval_919Mod":
-                    locFiles = GetLocFilesForPlaythrough("anno domini");
-                    break;
-                case "OfficialCC_DefaultCK3_HighMedieval_MK1212Mod":
-                case "OfficialCC_DefaultCK3_LateMedieval_MK1212Mod":
-                case "OfficialCC_DefaultCK3_Renaissance_MK1212Mod":
-                    locFiles = GetLocFilesForPlaythrough("mk1212");
-                    break;
-                case "OfficialCC_TheFallenEagle_AgeOfJustinian":
-                    locFiles = GetLocFilesForPlaythrough("age of justinian");
-                    break;
-                case "OfficialCC_TheFallenEagle_FireforgedEmpire":
-                    locFiles = GetLocFilesForPlaythrough("fireforged empire");
-                    break;
-                case "OfficialCC_RealmsInExile_TheDawnlessDays":
-                    locFiles = GetLocFilesForPlaythrough("dawnless days");
-                    break;
-                case "OfficialCC_AGOT_SevenKingdoms":
-                    locFiles = GetLocFilesForPlaythrough("seven_kingdoms");
-                    break;
-                case "OfficialCC_BookmarksPlus_AncientEmpires":
-                    locFiles = GetLocFilesForPlaythrough("ancient_empires");
-                    break;
-                case "OfficialCC_BookmarksPlus_FireforgedEmpire":
-                    locFiles = GetLocFilesForPlaythrough("fireforged empire");
-                    break;
-                case "OfficialCC_BookmarksPlus_AgeOfJustinian":
-                    locFiles = GetLocFilesForPlaythrough("age of justinian");
-                    break;
-                case "Custom":
-                    locFiles = GetLocFilesForPlaythrough(ModOptions.GetSelectedCustomMapper());
-                    break;
-                default:
-                    // Fallback: if mapper name is unknown, try to find loc files in a generic way
-                    Program.Logger.Debug($"Unknown mapper name '{Mapper_Name}'. Attempting to find localization files generically.");
-                    string genericLocPath = @".\data\units_cards_names";
-                    if (Directory.Exists(genericLocPath))
-                    {
-                        locFiles = Directory.GetFiles(genericLocPath, "*.loc", SearchOption.AllDirectories);
-                    }
-                    else
-                    {
-                        locFiles = new string[0];
-                    }
-                    break;
+                Program.Logger.Debug($"Could not resolve a loc folder for mapper '{Mapper_Name}'. Using generic loc fallback.");
+                locFiles = GetGenericLocFiles();
+            }
+            else
+            {
+                locFiles = GetLocFilesForPlaythrough(baseFolder);
             }
 
             foreach (var file in locFiles)

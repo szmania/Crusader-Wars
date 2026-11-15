@@ -181,6 +181,8 @@ private static Dictionary<string, (string X, string Y, List<string>? orientation
         public static string MapperEndDate { get; private set; } = string.Empty;
         /// <summary>loading_screen_name attribute from the active mapper's TimePeriod.xml (empty if not parsed).</summary>
         public static string MapperLoadingScreenName { get; private set; } = string.Empty;
+        /// <summary>units_cards_names_folder attribute from the active mapper's Mods.xml (empty when absent → switch-based lookup).</summary>
+        public static string MapperUnitsCardsNamesFolder { get; private set; } = string.Empty;
 
         private static Dictionary<string, XmlDocument>? _factionFileCache;
         private static Dictionary<string, (List<(int porcentage, string unit_key, string name, string max)>, string)>? _levyCache;
@@ -1672,6 +1674,7 @@ return byTag.Values.ToList();
                         xmlMods.Load(modsPath);
                         if (xmlMods.DocumentElement != null)
                         {
+                            MapperUnitsCardsNamesFolder = xmlMods.DocumentElement.Attributes?["units_cards_names_folder"]?.Value ?? string.Empty;
                             var activeSubmodTags = new HashSet<string>(activeSubmods); // For faster lookups
 
                             foreach (XmlNode node in xmlMods.DocumentElement.ChildNodes)
