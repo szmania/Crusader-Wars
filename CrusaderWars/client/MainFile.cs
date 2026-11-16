@@ -1741,6 +1741,14 @@ userFriendlyName = $"Custom ({ModOptions.GetSelectedCustomMapper()})";
         /// </summary>
         public void EnsureGameShortcuts()
         {
+            // Shortcut creation uses Windows Script Host; skip on Linux (the Linux Setup
+            // wizard generates its own launchers under data/attila).
+            if (new client.LinuxSetup.Services.LinuxEnvironmentDetector().IsRunningOnLinux())
+            {
+                Program.Logger.Debug("Running on Linux, skipping proactive Windows shortcut creation.");
+                return;
+            }
+
             if (!string.IsNullOrEmpty(Properties.Settings.Default.VAR_attila_path))
                 CreateGameShortcut("attila");
             if (!string.IsNullOrEmpty(Properties.Settings.Default.VAR_rome2_path))
