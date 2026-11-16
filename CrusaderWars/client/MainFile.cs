@@ -1657,11 +1657,10 @@ userFriendlyName = $"Custom ({ModOptions.GetSelectedCustomMapper()})";
         // This method creates a shortcut for Attila
         /// <summary>
         /// Creates or refreshes the Total War launcher shortcut (.lnk) for the given game type.
-        /// When <paramref name="gameType"/> is null the currently resolved battle game type is used.
         /// </summary>
-        private void CreateGameShortcut(string? gameType = null)
+        private static void CreateGameShortcut(string gameType)
         {
-            string resolvedGameType = string.IsNullOrEmpty(gameType) ? _gameType : gameType;
+            string resolvedGameType = gameType;
 
             // Determine shortcut name based on game type
             string shortcutName = resolvedGameType switch
@@ -1771,7 +1770,7 @@ userFriendlyName = $"Custom ({ModOptions.GetSelectedCustomMapper()})";
                 CreateGameShortcut("rome_2");
         }
 
-        private void CreateShortcut(string shortcutPath, string targetPath, string workingDirectory, string arguments, string description)
+        private static void CreateShortcut(string shortcutPath, string targetPath, string workingDirectory, string arguments, string description)
         {
             try
             {
@@ -2334,7 +2333,7 @@ userFriendlyName = $"Custom ({ModOptions.GetSelectedCustomMapper()})";
                 {
                     try
                     {
-                        CreateGameShortcut();
+                        CreateGameShortcut(_gameType);
                         Program.Logger.Debug("Attila shortcut created/verified for Windows.");
                     }
                     catch (Exception ex)
@@ -2833,7 +2832,7 @@ userFriendlyName = $"Custom ({ModOptions.GetSelectedCustomMapper()})";
             await Task.Delay(50); // Allow UI to update
 
             // Ensure Attila shortcut exists
-            CreateGameShortcut();
+            CreateGameShortcut(_gameType);
 
             // Restore battle context from saved log snippet
             Program.Logger.Debug("Restoring battle context from log snippet...");
@@ -3253,6 +3252,9 @@ userFriendlyName = $"Custom ({ModOptions.GetSelectedCustomMapper()})";
                 };
                 shortcutPath = @".\" + shortcutName;
                 Program.Logger.Debug($"Using Windows shortcut path: {shortcutPath}");
+                // Ensure the shortcut exists before we try to launch it: it may not have
+                // been created at startup if the game path was configured afterwards.
+                CreateGameShortcut(gameType);
             }
 
                 // Prefer the .lnk shortcut; fall back to the .bat launcher written by
