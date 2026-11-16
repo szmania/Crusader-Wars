@@ -283,12 +283,28 @@ namespace CrusaderWars
             string fontPath = @".\font\Paradox_King_Script.otf";
             if (System.IO.File.Exists(fontPath))
             {
-                fonts.AddFontFile(fontPath);
-                customFont = new Font(fonts.Families[0], 12f); // Specify the size you want
+                try
+                {
+                    fonts.AddFontFile(fontPath);
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Failed to load custom font '{fontPath}': {ex.Message}. Falling back to default font.");
+                }
             }
             else
             {
-                MessageBox.Show("Font file not found.", "Crusader Conflicts: Font error");
+                Program.Logger.Debug($"Custom font file not found at '{fontPath}'. Using default font.");
+            }
+
+            // Use the custom font only if it was loaded successfully; otherwise fall back to a default system font.
+            if (fonts.Families.Length > 0)
+            {
+                customFont = new Font(fonts.Families[0], 12f);
+            }
+            else
+            {
+                customFont = new Font("Microsoft Sans Serif", 12f);
             }
         }
 
