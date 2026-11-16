@@ -544,7 +544,7 @@ namespace CrusaderWars
                     Directory.CreateDirectory(dir);
                 }
 
-                string defaultContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Paths>\n    <TotalWarAttila path=\"\" />\n    <CrusaderKings path=\"\" />\n</Paths>";
+                string defaultContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Paths>\n    <TotalWarAttila path=\"\" />\n    <CrusaderKings path=\"\" />\n    <TotalWarRome2 path=\"\" />\n</Paths>";
 
                 File.WriteAllText(file, defaultContent);
                 Program.Logger.Debug("Default Paths.xml file created successfully.");
@@ -1165,6 +1165,26 @@ Status_Attila_Icon.BackgroundImage = CrusaderWars.Properties.Resources.warning__
                 }
                 else
                 {
+                    // Self-heal: insert a missing <TotalWarRome2> element before XSD
+                    // validation so legacy files keep their existing settings instead of
+                    // triggering the reset-to-default prompt. Malformed XML defers to validation.
+                    try
+                    {
+                        var healDoc = new XmlDocument();
+                        healDoc.Load(file);
+                        if (healDoc.DocumentElement is { Name: "Paths" } healRoot &&
+                            healRoot.SelectSingleNode("TotalWarRome2") == null)
+                        {
+                            var rome2 = healDoc.CreateElement("TotalWarRome2");
+                            rome2.SetAttribute("path", string.Empty);
+                            healRoot.AppendChild(rome2);
+                            healDoc.Save(file);
+                            Program.Logger.Debug("Paths.xml self-heal: added missing <TotalWarRome2 path=\"\" /> element.");
+                        }
+                    }
+                    catch (XmlException) { /* malformed XML: defer to validation + reset prompt */ }
+                    catch (IOException) { /* locked file: defer to validation */ }
+
                     var validationErrors = XmlValidator.Validate(file, PathsXsdPath);
                     if (validationErrors.Count > 0)
                     {
@@ -1703,6 +1723,29 @@ Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?
             };
         }
 
+        /// <summary>True when the playthrough has mapper folders only under the Attila
+        /// subdirectory (no Rome 2 mapper), so it cannot run without a configured Attila path.</summary>
+        private static bool IsAttilaOnlyPlaythrough(string tag)
+        {
+            string tagToFind = tag.Equals("Custom", StringComparison.OrdinalIgnoreCase)
+                ? ModOptions.GetSelectedCustomMapper()
+                : tag;
+            if (string.IsNullOrEmpty(tagToFind)) return false;
+            return HasMapperFolderForTag("attila", tagToFind) && !HasMapperFolderForTag("rome_2", tagToFind);
+        }
+
+        private static bool HasMapperFolderForTag(string game, string tagToFind)
+        {
+            foreach (var dir in UnitMappers_BETA.GetMapperDirectories(game))
+            {
+                string tagFile = Path.Combine(dir, "tag.txt");
+                if (File.Exists(tagFile) &&
+                    File.ReadAllText(tagFile).Trim().Equals(tagToFind, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+            return false;
+        }
+
         private void DynamicTabButton_Click(object? sender, EventArgs e)
         {
             if (sender is Button b && b.Tag is string tag)
@@ -1751,12 +1794,32 @@ Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?
                 };
             }
 
+            // A playthrough that only has Attila mappers cannot run when the Attila path is
+            // unconfigured. Disable those tabs (Custom is always allowed) so the user cannot
+            // select an unplayable playthrough.
+            bool attilaConfigured = !string.IsNullOrEmpty(Properties.Settings.Default.VAR_attila_path);
+
             foreach (var (tag, info) in entries)
             {
                 string stateStr = GetOrCreateUnitMapperOption(xmlDoc, tag); // ensures the XML node exists for persistence
                 bool state = stateStr == "True";
+
+                bool disabled = !attilaConfigured
+                    && !tag.Equals("Custom", StringComparison.OrdinalIgnoreCase)
+                    && IsAttilaOnlyPlaythrough(tag);
+                if (disabled)
+                {
+                    // Force the playthrough off and persist that so it is not restored on next load.
+                    state = false;
+                    var node = xmlDoc.SelectSingleNode("//UnitMappers [@name='" + tag + "']");
+                    if (node != null) node.InnerText = "False";
+                }
+
                 var tab = CreatePlaythroughTab(info ?? new PlaythroughInfo { Tag = tag }, state);
                 tab.ToggleClicked += PlaythroughToggle_Clicked;
+                if (disabled)
+                    tab.SetPlaythroughEnabled(false,
+                        "This playthrough requires Total War: Attila. Set the Attila path in Mod Settings to enable it.");
                 _playthroughTabs.Add(tab);
 
                 // Reuse the designer button for legacy tags; create one for dynamic playthroughs.
@@ -1780,8 +1843,13 @@ Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?
                     flowLayoutPanel2.Controls.Add(btn);
                 }
                 _playthroughTabButtons.Add(btn);
-            }
+                if (disabled)
+                {
+                    btn.Enabled = false;
+                    btn.ForeColor = System.Drawing.Color.Gray;
+                }
 
+            }
             // Reorder FlowLayoutPanel controls to match the sorted button order
             flowLayoutPanel2.SuspendLayout();
             flowLayoutPanel2.Controls.Clear();

@@ -30,6 +30,7 @@ namespace CrusaderWars.mod_manager
         private List<Submod> _availableSubmods = new List<Submod>();
         private readonly string _playthroughTag;
         private readonly string _gameType; // Add this
+        private bool _playthroughDisabled; // Set when the playthrough requires an unconfigured game
 
         public string GetPlaythroughTag() { return _playthroughTag; }
 
@@ -337,6 +338,19 @@ if (tag.StartsWith("Custom_", StringComparison.OrdinalIgnoreCase))
         public void SetState(bool state)
         {
             uC_Toggle1.SetState(state);
+        }
+
+        /// <summary>Disables (or re-enables) this playthrough's toggle so it cannot be activated.
+        /// Used when the playthrough requires a Total War game whose path is not configured.</summary>
+        public void SetPlaythroughEnabled(bool enabled, string? reason = null)
+        {
+            _playthroughDisabled = !enabled;
+            uC_Toggle1.Enabled = enabled;
+            if (!enabled)
+            {
+                uC_Toggle1.SetState(false);
+                if (!string.IsNullOrEmpty(reason)) toolTip2?.SetToolTip(uC_Toggle1, reason);
+            }
         }
 
         private static List<string> ValidateUnitMapper(string unitMapperDirectory)
@@ -671,7 +685,8 @@ if (tag.StartsWith("Custom_", StringComparison.OrdinalIgnoreCase))
             {
                 foreach (var controlReference in AllControlsReferences)
                 {
-                    if (controlReference != this) { controlReference.uC_Toggle1.Enabled = true; }
+                    // Do not re-enable a tab that was disabled because its game path is unconfigured.
+                    if (controlReference != this) { controlReference.uC_Toggle1.Enabled = !controlReference._playthroughDisabled; }
                 }
             }
                 BtnVerifyMods.Enabled = true;
