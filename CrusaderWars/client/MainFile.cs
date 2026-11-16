@@ -673,6 +673,9 @@ string rome2Executable = Path.GetFileName(Properties.Settings.Default.VAR_rome2_
             //Load Game Paths
             Options.ReadGamePaths();
             ApplyEnvironmentVariableOverrides();
+            // Proactively create launcher shortcuts for every configured Total War game so
+            // they exist before a battle needs them (fixes missing CC Attila.lnk / CC Rome2.lnk).
+            EnsureGameShortcuts();
             SubmodManager.LoadActiveSubmods();
 
             // Set locations programmatically
@@ -1636,10 +1639,16 @@ userFriendlyName = $"Custom ({ModOptions.GetSelectedCustomMapper()})";
         }
 
         // This method creates a shortcut for Attila
-private void CreateGameShortcut()
+        /// <summary>
+        /// Creates or refreshes the Total War launcher shortcut (.lnk) for the given game type.
+        /// When <paramref name="gameType"/> is null the currently resolved battle game type is used.
+        /// </summary>
+        private void CreateGameShortcut(string? gameType = null)
         {
+            string resolvedGameType = string.IsNullOrEmpty(gameType) ? _gameType : gameType;
+
             // Determine shortcut name based on game type
-            string shortcutName = _gameType switch
+            string shortcutName = resolvedGameType switch
             {
                 "attila" => "CC Attila.lnk",
                 "rome_2" => "CC Rome2.lnk",
@@ -1648,9 +1657,17 @@ private void CreateGameShortcut()
             string shortcutPath = @".\" + shortcutName;
 
             // Resolve the target game executable based on the active battle game type
-            string gameExe = _gameType == "rome_2" ? "Rome2.exe" : "Attila.exe";
-            string gamePath = _gameType == "rome_2" ? Properties.Settings.Default.VAR_rome2_path : Properties.Settings.Default.VAR_attila_path;
-            string gameDisplayName = _gameType == "rome_2" ? "Total War: Rome 2" : "Total War: Attila";
+            string gameExe = resolvedGameType == "rome_2" ? "Rome2.exe" : "Attila.exe";
+            string gamePath = resolvedGameType == "rome_2" ? Properties.Settings.Default.VAR_rome2_path : Properties.Settings.Default.VAR_attila_path;
+            string gameDisplayName = resolvedGameType == "rome_2" ? "Total War: Rome 2" : "Total War: Attila";
+
+            // Nothing to point the shortcut at: skip creation so an empty path is never baked in.
+            if (string.IsNullOrEmpty(gamePath))
+            {
+                Program.Logger.Debug($"CreateGameShortcut: {gameDisplayName} path is not configured. Skipping shortcut creation for '{shortcutName}'.");
+                return;
+            }
+
             string targetPath = gamePath;
             string workingDirectory = gamePath.Replace($@"\{gameExe}", "");
             string arguments = "used_mods_cc.txt";
@@ -1660,24 +1677,23 @@ private void CreateGameShortcut()
 
             if (System.IO.File.Exists(shortcutPath))
             {
-                Program.Logger.Debug("Attila shortcut found. Validating its properties...");
+                Program.Logger.Debug($"{shortcutName} found. Validating its properties...");
                 try
                 {
                     Type? t = Type.GetTypeFromProgID("WScript.Shell");
                     dynamic shell = Activator.CreateInstance(t!)!;
                     var shortcut = shell.CreateShortcut(shortcutPath);
 
-                    // Compare properties
                     if (shortcut.TargetPath == targetPath &&
                         shortcut.WorkingDirectory == workingDirectory &&
                         shortcut.Arguments == arguments)
                     {
                         needsUpdate = false;
-                        Program.Logger.Debug("Attila shortcut is up-to-date.");
+                        Program.Logger.Debug($"{shortcutName} is up-to-date.");
                     }
                     else
                     {
-                        Program.Logger.Debug("Attila shortcut is outdated or incorrect. Recreating...");
+                        Program.Logger.Debug($"{shortcutName} is outdated or incorrect. Recreating...");
                         Program.Logger.Debug($"  - Current TargetPath: {shortcut.TargetPath}, Expected: {targetPath}");
                         Program.Logger.Debug($"  - Current WorkingDirectory: {shortcut.WorkingDirectory}, Expected: {workingDirectory}");
                         Program.Logger.Debug($"  - Current Arguments: {shortcut.Arguments}, Expected: {arguments}");
@@ -1685,14 +1701,13 @@ private void CreateGameShortcut()
                 }
                 catch (Exception ex)
                 {
-                    Program.Logger.Debug($"Error reading existing Attila shortcut properties: {ex.Message}. Shortcut will be recreated.");
-                    needsUpdate = true; // Ensure it's recreated on error
+                    Program.Logger.Debug($"Error reading existing {shortcutName} properties: {ex.Message}. Shortcut will be recreated.");
+                    needsUpdate = true;
                 }
             }
             else
             {
-                Program.Logger.Debug("Attila shortcut not found. Creating...");
-                needsUpdate = true;
+                Program.Logger.Debug($"{shortcutName} not found. Creating...");
             }
 
             if (needsUpdate)
@@ -1700,47 +1715,85 @@ private void CreateGameShortcut()
                 try
                 {
                     CreateShortcut(shortcutPath, targetPath, workingDirectory, arguments, description);
-                    Program.Logger.Debug("Attila shortcut created/updated successfully.");
+                    if (System.IO.File.Exists(shortcutPath))
+                    {
+                        Program.Logger.Debug($"{shortcutName} created/updated successfully.");
+                    }
+                    else
+                    {
+                        // WSH reported success but no file appeared — write the .bat fallback now.
+                        Program.Logger.Debug($"{shortcutName} was not created by WSH. Writing .bat fallback.");
+                        CreateBatchFallback(shortcutPath, targetPath, workingDirectory, arguments);
+                    }
                 }
                 catch (Exception ex)
                 {
-                    Program.Logger.Debug($"Error creating/updating Attila shortcut: {ex.Message}");
-                    // Optionally re-throw or handle more gracefully if shortcut creation is critical
+                    Program.Logger.Debug($"Error creating/updating {shortcutName}: {ex.Message}");
+                    CreateBatchFallback(shortcutPath, targetPath, workingDirectory, arguments);
                 }
             }
         }
 
+        /// <summary>
+        /// Proactively creates launcher shortcuts for every configured Total War game
+        /// (Attila and/or Rome 2). Called at startup so the shortcuts exist before a
+        /// battle needs them.
+        /// </summary>
+        public void EnsureGameShortcuts()
+        {
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.VAR_attila_path))
+                CreateGameShortcut("attila");
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.VAR_rome2_path))
+                CreateGameShortcut("rome_2");
+        }
+
         private void CreateShortcut(string shortcutPath, string targetPath, string workingDirectory, string arguments, string description)
         {
-            // Use Windows Script Host to create shortcut
             try
             {
                 Type? t = Type.GetTypeFromProgID("WScript.Shell");
-                dynamic shell = Activator.CreateInstance(t!)!;
+                if (t == null)
+                {
+                    Program.Logger.Debug("WScript.Shell ProgID not available on this system.");
+                    throw new InvalidOperationException("WScript.Shell COM object unavailable.");
+                }
+                dynamic shell = Activator.CreateInstance(t)!;
                 var shortcut = shell.CreateShortcut(shortcutPath);
                 shortcut.TargetPath = targetPath;
                 shortcut.WorkingDirectory = workingDirectory;
                 shortcut.Arguments = arguments;
                 shortcut.Description = description;
                 shortcut.Save();
+                Program.Logger.Debug($"WSH saved shortcut '{shortcutPath}' -> '{targetPath}' (cwd '{workingDirectory}', args '{arguments}').");
             }
             catch (Exception ex)
             {
-                Program.Logger.Debug($"Error creating shortcut with WSH: {ex.Message}");
-                // Fallback: create a simple batch file
-                try
-                {
-                    string batchPath = shortcutPath.Replace(".lnk", ".bat");
-                    string batchContent = $"@echo off\n" +
-                                         $"cd /d \"{workingDirectory}\"\n" +
-                                         $"start \"\" \"{targetPath}\" {arguments}\n";
-                    System.IO.File.WriteAllText(batchPath, batchContent);
-                    Program.Logger.Debug($"Created batch file fallback: {batchPath}");
-                }
-                catch (Exception batchEx)
-                {
-                    Program.Logger.Debug($"Error creating batch file fallback: {batchEx.Message}");
-                }
+                // Log full details so silent COM failures are diagnosable.
+                Program.Logger.Debug($"WSH shortcut creation failed for '{shortcutPath}': {ex.GetType().Name}: {ex.Message}");
+                if (ex.HResult != 0)
+                    Program.Logger.Debug($"  HRESULT: 0x{ex.HResult:X8}");
+                throw; // caller writes the .bat fallback
+            }
+        }
+
+        /// <summary>
+        /// Writes a .bat launcher next to the .lnk path. StartTotalWarProcess falls
+        /// back to this file when the .lnk is missing.
+        /// </summary>
+        private static void CreateBatchFallback(string shortcutPath, string targetPath, string workingDirectory, string arguments)
+        {
+            try
+            {
+                string batchPath = shortcutPath.Replace(".lnk", ".bat");
+                string batchContent = $"@echo off\n" +
+                                      $"cd /d \"{workingDirectory}\"\n" +
+                                      $"start \"\" \"{targetPath}\" {arguments}\n";
+                System.IO.File.WriteAllText(batchPath, batchContent);
+                Program.Logger.Debug($"Created batch file fallback: {batchPath}");
+            }
+            catch (Exception batchEx)
+            {
+                Program.Logger.Debug($"Error creating batch file fallback: {batchEx.Message}");
             }
         }
 
@@ -3178,24 +3231,36 @@ private void CreateGameShortcut()
                 Program.Logger.Debug($"Using Windows shortcut path: {shortcutPath}");
             }
 
-                if (!System.IO.File.Exists(shortcutPath))
+                // Prefer the .lnk shortcut; fall back to the .bat launcher written by
+                // CreateBatchFallback when WSH could not create the .lnk.
+                string launchPath = shortcutPath;
+                if (!System.IO.File.Exists(launchPath))
                 {
-                    string errorMessage = $"The required launcher shortcut was not found at '{shortcutPath}'.";
-                    if (isLinux)
+                    string batchPath = shortcutPath.Replace(".lnk", ".bat");
+                    if (System.IO.File.Exists(batchPath))
                     {
-                        errorMessage += "\nPlease run the Linux Setup wizard from the Mod Settings screen to generate it.";
+                        Program.Logger.Debug($"Shortcut '{shortcutPath}' missing; using batch fallback '{batchPath}'.");
+                        launchPath = batchPath;
                     }
                     else
                     {
-                        errorMessage += "\nPlease restart the process. The application should create it automatically.";
+                        string errorMessage = $"The required launcher shortcut was not found at '{shortcutPath}'.";
+                        if (isLinux)
+                        {
+                            errorMessage += "\nPlease run the Linux Setup wizard from the Mod Settings screen to generate it.";
+                        }
+                        else
+                        {
+                            errorMessage += "\nPlease restart the process. The application should create it automatically.";
+                        }
+                        Program.Logger.Debug(errorMessage);
+                        MessageBox.Show(errorMessage, "Crusader Conflicts: Shortcut Missing", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return; // Stop execution
                     }
-                    Program.Logger.Debug(errorMessage);
-                    MessageBox.Show(errorMessage, "Crusader Conflicts: Shortcut Missing", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return; // Stop execution
                 }
 
-                Program.Logger.Debug($"Executing shortcut: {shortcutPath}");
-                Process.Start(new ProcessStartInfo(shortcutPath) { UseShellExecute = true });
+                Program.Logger.Debug($"Executing shortcut: {launchPath}");
+                Process.Start(new ProcessStartInfo(launchPath) { UseShellExecute = true });
             }
 
         public async static Task CloseTotalWarProcess()
