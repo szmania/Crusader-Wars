@@ -54,69 +54,99 @@ namespace CrusaderWars.mod_manager
             try
             {
                 dataGridViewGames.Rows.Clear();
+            // Check if paths are configured
+            bool hasAttilaPath = !string.IsNullOrEmpty(Properties.Settings.Default.VAR_attila_path);
+            bool hasRome2Path = !string.IsNullOrEmpty(Properties.Settings.Default.VAR_rome2_path);
 
-                // Check if Attila path is configured
-                bool hasAttilaPath = !string.IsNullOrEmpty(Properties.Settings.Default.VAR_attila_path);
-                bool hasRome2Path = !string.IsNullOrEmpty(Properties.Settings.Default.VAR_rome2_path);
+            foreach (var row in _rows)
+            {
+                int rowIndex = dataGridViewGames.Rows.Add();
+                var gridRow = dataGridViewGames.Rows[rowIndex];
 
-                foreach (var row in _rows)
+                gridRow.Cells["colYearRange"].Value = row.Label;
+
+                // Attila cell
+                var attilaCell = (DataGridViewCheckBoxCell)gridRow.Cells["colAttila"];
+                bool attilaLocked = row.AttilaAvailable && !row.Rome2Available;
+                
+                // If Attila path is not configured, disable Attila
+                if (!hasAttilaPath && hasRome2Path)
                 {
-                    int rowIndex = dataGridViewGames.Rows.Add();
-                    var gridRow = dataGridViewGames.Rows[rowIndex];
+                    attilaCell.Value = false;
+                    attilaCell.ReadOnly = true;
+                    attilaCell.Style.BackColor = System.Drawing.SystemColors.ControlDark;
+                    attilaCell.Style.ForeColor = System.Drawing.SystemColors.GrayText;
+                }
+                // If Rome 2 path is not configured but Attila is, auto-select Attila
+                else if (!hasRome2Path && hasAttilaPath && row.AttilaAvailable)
+                {
+                    attilaCell.Value = true;
+                    attilaCell.ReadOnly = true;
+                    attilaCell.Style.BackColor = System.Drawing.SystemColors.Window;
+                    attilaCell.Style.ForeColor = System.Drawing.SystemColors.ControlText;
+                }
+                else
+                {
+                    attilaCell.Value = row.AttilaAvailable ? row.AttilaSelected : false;
+                    attilaCell.ReadOnly = !row.AttilaAvailable || attilaLocked;
+                    attilaCell.Style.BackColor = row.AttilaAvailable ? System.Drawing.SystemColors.Window : System.Drawing.SystemColors.ControlDark;
+                    attilaCell.Style.ForeColor = row.AttilaAvailable ? System.Drawing.SystemColors.ControlText : System.Drawing.SystemColors.GrayText;
+                }
 
-                    gridRow.Cells["colYearRange"].Value = row.Label;
+                // Rome 2 cell
+                var rome2Cell = (DataGridViewCheckBoxCell)gridRow.Cells["colRome2"];
+                bool rome2Locked = row.Rome2Available && !row.AttilaAvailable;
+                
+                // If Rome 2 path is not configured but Attila is, disable Rome 2
+                if (!hasRome2Path && hasAttilaPath)
+                {
+                    rome2Cell.Value = false;
+                    rome2Cell.ReadOnly = true;
+                    rome2Cell.Style.BackColor = System.Drawing.SystemColors.ControlDark;
+                    rome2Cell.Style.ForeColor = System.Drawing.SystemColors.GrayText;
+                }
+                // If Attila path is not configured but Rome 2 is, auto-select Rome 2
+                else if (!hasAttilaPath && hasRome2Path && row.Rome2Available)
+                {
+                    rome2Cell.Value = true;
+                    rome2Cell.ReadOnly = true;
+                    rome2Cell.Style.BackColor = System.Drawing.SystemColors.Window;
+                    rome2Cell.Style.ForeColor = System.Drawing.SystemColors.ControlText;
+                }
+                else
+                {
+                    rome2Cell.Value = row.Rome2Available ? row.Rome2Selected : false;
+                    rome2Cell.ReadOnly = !row.Rome2Available || rome2Locked;
+                    rome2Cell.Style.BackColor = row.Rome2Available ? System.Drawing.SystemColors.Window : System.Drawing.SystemColors.ControlDark;
+                    rome2Cell.Style.ForeColor = row.Rome2Available ? System.Drawing.SystemColors.ControlText : System.Drawing.SystemColors.GrayText;
+                }
 
-                    // Attila cell
-                    var attilaCell = (DataGridViewCheckBoxCell)gridRow.Cells["colAttila"];
-                    bool attilaLocked = row.AttilaAvailable && !row.Rome2Available;
-                    
-                    // If Attila path is not configured, disable Attila and force Rome 2
-                    if (!hasAttilaPath && hasRome2Path)
-                    {
-                        attilaCell.Value = false;
-                        attilaCell.ReadOnly = true;
-                        attilaCell.Style.BackColor = System.Drawing.SystemColors.ControlDark;
-                        attilaCell.Style.ForeColor = System.Drawing.SystemColors.GrayText;
-                    }
-                    else
-                    {
-                        attilaCell.Value = row.AttilaAvailable ? row.AttilaSelected : false;
-                        attilaCell.ReadOnly = !row.AttilaAvailable || attilaLocked;
-                        attilaCell.Style.BackColor = row.AttilaAvailable ? System.Drawing.SystemColors.Window : System.Drawing.SystemColors.ControlDark;
-                        attilaCell.Style.ForeColor = row.AttilaAvailable ? System.Drawing.SystemColors.ControlText : System.Drawing.SystemColors.GrayText;
-                    }
+                // Tooltips
+                string attilaTooltip = row.AttilaScreenNames.Any()
+                    ? "TW: Attila Mods:\n" + string.Join("\n", row.AttilaScreenNames.Select(s => "• " + s))
+                    : "TW: Attila: No mods specified";
+                string rome2Tooltip = row.Rome2ScreenNames.Any()
+                    ? "TW: Rome 2 Mods:\n" + string.Join("\n", row.Rome2ScreenNames.Select(s => "• " + s))
+                    : "TW: Rome 2: No mods specified";
 
-                    // Rome 2 cell
-                    var rome2Cell = (DataGridViewCheckBoxCell)gridRow.Cells["colRome2"];
-                    bool rome2Locked = row.Rome2Available && !row.AttilaAvailable;
-                    
-                    // If Attila path is not configured but Rome 2 is, force Rome 2 selection
-                    if (!hasAttilaPath && hasRome2Path && row.Rome2Available)
-                    {
-                        rome2Cell.Value = true;
-                        rome2Cell.ReadOnly = true;
-                        rome2Cell.Style.BackColor = System.Drawing.SystemColors.Window;
-                        rome2Cell.Style.ForeColor = System.Drawing.SystemColors.ControlText;
-                    }
-                    else
-                    {
-                        rome2Cell.Value = row.Rome2Available ? row.Rome2Selected : false;
-                        rome2Cell.ReadOnly = !row.Rome2Available || rome2Locked;
-                        rome2Cell.Style.BackColor = row.Rome2Available ? System.Drawing.SystemColors.Window : System.Drawing.SystemColors.ControlDark;
-                        rome2Cell.Style.ForeColor = row.Rome2Available ? System.Drawing.SystemColors.ControlText : System.Drawing.SystemColors.GrayText;
-                    }
+                // When Attila is unavailable, explain why the Attila column is disabled.
+                if (!hasAttilaPath && hasRome2Path)
+                {
+                    attilaCell.ToolTipText = attilaTooltip + "\n\n(requires Total War: Attila)";
+                    rome2Cell.ToolTipText = rome2Tooltip + "\n\nAuto-selected (Attila not configured)";
+                }
+                // When Rome 2 is unavailable, explain why the Rome 2 column is disabled.
+                else if (!hasRome2Path && hasAttilaPath)
+                {
+                    rome2Cell.ToolTipText = rome2Tooltip + "\n\n(requires Total War: Rome 2)";
+                    attilaCell.ToolTipText = attilaTooltip + "\n\nAuto-selected (Rome 2 not configured)";
+                }
+                else
+                {
+                    attilaCell.ToolTipText = attilaTooltip;
+                    rome2Cell.ToolTipText = rome2Tooltip;
+                }
 
-                    // Tooltips
-                    attilaCell.ToolTipText = row.AttilaScreenNames.Any()
-                        ? "TW: Attila Mods:\n" + string.Join("\n", row.AttilaScreenNames.Select(s => "• " + s))
-                        : "TW: Attila: No mods specified";
-                    rome2Cell.ToolTipText = row.Rome2ScreenNames.Any()
-                        ? "TW: Rome 2 Mods:\n" + string.Join("\n", row.Rome2ScreenNames.Select(s => "• " + s))
-                        : "TW: Rome 2: No mods specified";
-
-                    // When Attila is unavailable, explain why the Attila column is disabled.
-                    if (!hasAttilaPath && hasRome2Path)
-                        attilaCell.ToolTipText = "Total War: Attila path is not configured. Set it in Mod Settings to enable Attila.";
                 }
             }
             finally

@@ -1734,6 +1734,17 @@ Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?
             return HasMapperFolderForTag("attila", tagToFind) && !HasMapperFolderForTag("rome_2", tagToFind);
         }
 
+        /// <summary>True when the playthrough has mapper folders only under the Rome 2
+        /// subdirectory (no Attila mapper), so it cannot run without a configured Rome 2 path.</summary>
+        private static bool IsRome2OnlyPlaythrough(string tag)
+        {
+            string tagToFind = tag.Equals("Custom", StringComparison.OrdinalIgnoreCase)
+                ? ModOptions.GetSelectedCustomMapper()
+                : tag;
+            if (string.IsNullOrEmpty(tagToFind)) return false;
+            return HasMapperFolderForTag("rome_2", tagToFind) && !HasMapperFolderForTag("attila", tagToFind);
+        }
+
         private static bool HasMapperFolderForTag(string game, string tagToFind)
         {
             foreach (var dir in UnitMappers_BETA.GetMapperDirectories(game))
@@ -1798,15 +1809,16 @@ Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?
             // unconfigured. Disable those tabs (Custom is always allowed) so the user cannot
             // select an unplayable playthrough.
             bool attilaConfigured = !string.IsNullOrEmpty(Properties.Settings.Default.VAR_attila_path);
+            bool rome2Configured = !string.IsNullOrEmpty(Properties.Settings.Default.VAR_rome2_path);
 
             foreach (var (tag, info) in entries)
             {
                 string stateStr = GetOrCreateUnitMapperOption(xmlDoc, tag); // ensures the XML node exists for persistence
                 bool state = stateStr == "True";
 
-                bool disabled = !attilaConfigured
-                    && !tag.Equals("Custom", StringComparison.OrdinalIgnoreCase)
-                    && IsAttilaOnlyPlaythrough(tag);
+                bool disabled = !tag.Equals("Custom", StringComparison.OrdinalIgnoreCase)
+                    && ((!attilaConfigured && IsAttilaOnlyPlaythrough(tag))
+                        || (!rome2Configured && IsRome2OnlyPlaythrough(tag)));
                 if (disabled)
                 {
                     // Force the playthrough off and persist that so it is not restored on next load.
@@ -1818,8 +1830,13 @@ Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?
                 var tab = CreatePlaythroughTab(info ?? new PlaythroughInfo { Tag = tag }, state);
                 tab.ToggleClicked += PlaythroughToggle_Clicked;
                 if (disabled)
+                {
+                    bool needsAttila = !attilaConfigured && IsAttilaOnlyPlaythrough(tag);
                     tab.SetPlaythroughEnabled(false,
-                        "This playthrough requires Total War: Attila. Set the Attila path in Mod Settings to enable it.");
+                        needsAttila
+                            ? "This playthrough requires Total War: Attila. Set the Attila path in Mod Settings to enable it. (requires Total War: Attila)"
+                            : "This playthrough requires Total War: Rome 2. Set the Rome 2 path in Mod Settings to enable it. (requires Total War: Rome 2)");
+                }
                 _playthroughTabs.Add(tab);
 
                 // Reuse the designer button for legacy tags; create one for dynamic playthroughs.

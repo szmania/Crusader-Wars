@@ -1074,15 +1074,15 @@ namespace CrusaderWars.twbattle
                 await Task.Delay(1000); // Check every second
             }
 
-            Program.Logger.Debug("TW:Attila battle ended.");
+            Program.Logger.Debug("Total War battle ended.");
             // Rome 2 needs a grace period after "Battle has finished" before the process is
             // closed, otherwise the results screen may not flush to the log. Wait up to 20s,
             // but proceed immediately if Rome 2 exits on its own. Attila is unaffected.
             if (UnitMappers_BETA.ResolvedBattleGameType == "rome_2")
             {
-                Program.Logger.Debug("Rome 2 battle ended. Waiting up to 30 seconds before closing Rome 2 (or until it exits on its own)...");
+                Program.Logger.Debug("Rome 2 battle ended. Waiting up to 12 seconds before closing Rome 2 (or until it exits on its own)...");
                 var rome2DelayStopwatch = Stopwatch.StartNew();
-                while (rome2DelayStopwatch.Elapsed.TotalSeconds < 30)
+                while (rome2DelayStopwatch.Elapsed.TotalSeconds < 12)
                 {
                     if (token.IsCancellationRequested)
                     {
