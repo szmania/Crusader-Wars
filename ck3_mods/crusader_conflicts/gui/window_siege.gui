@@ -752,7 +752,7 @@ window = {
 								name = "log_holding_level"
 								duration = 0.01
 								next = "log_sickness"
-								on_finish = "[ExecuteConsoleCommand(Concatenate('HoldingLevel:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetPrimaryBuildingType.GetKey))]"
+								on_finish = "[ExecuteConsoleCommand(Concatenate('HoldingLevel:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetPrimaryDistrictType.GetPrimaryBuildingType.GetKey))]"
 							}
 							state = {
 								name = "log_sickness"
@@ -846,7 +846,7 @@ window = {
 								name = "print_special_building"
 								duration = 0.01
 								next = "print_modifiers_line"
-								on_finish = "[ExecuteConsoleCommand(Concatenate('SpecialBuilding:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetSpecialBuildingType.GetKey))]"
+								on_finish = "[ExecuteConsoleCommand(Concatenate('SpecialBuilding:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetSpecialDistrictType.GetPrimaryBuildingType.GetKey))]"
 							}
 							state = {
 								name = "print_modifiers_line"
@@ -1075,7 +1075,7 @@ window = {
 								name = "log_holding_level"
 								duration = 0.01
 								next = "log_sickness"
-								on_finish = "[ExecuteConsoleCommand(Concatenate('HoldingLevel:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetPrimaryBuildingType.GetKey))]"
+								on_finish = "[ExecuteConsoleCommand(Concatenate('HoldingLevel:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetPrimaryDistrictType.GetPrimaryBuildingType.GetKey))]"
 							}
 							state = {
 								name = "log_sickness"
@@ -1169,7 +1169,7 @@ window = {
 								name = "print_special_building"
 								duration = 0.01
 								next = "print_modifiers_line"
-								on_finish = "[ExecuteConsoleCommand(Concatenate('SpecialBuilding:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetSpecialBuildingType.GetKey))]"
+								on_finish = "[ExecuteConsoleCommand(Concatenate('SpecialBuilding:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetSpecialDistrictType.GetSpecialDistrictType.GetPrimaryBuildingType.GetKey))]"
 							}
 							state = {
 								name = "print_modifiers_line"
@@ -1397,7 +1397,7 @@ window = {
 								name = "log_holding_level"
 								duration = 0.01
 								next = "log_sickness"
-								on_finish = "[ExecuteConsoleCommand(Concatenate('HoldingLevel:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetPrimaryBuildingType.GetKey))]"
+								on_finish = "[ExecuteConsoleCommand(Concatenate('HoldingLevel:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetPrimaryDistrictType.GetPrimaryBuildingType.GetKey))]"
 							}
 							state = {
 								name = "log_sickness"
@@ -1491,7 +1491,7 @@ window = {
 								name = "print_special_building"
 								duration = 0.01
 								next = "print_modifiers_line"
-								on_finish = "[ExecuteConsoleCommand(Concatenate('SpecialBuilding:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetSpecialBuildingType.GetKey))]"
+								on_finish = "[ExecuteConsoleCommand(Concatenate('SpecialBuilding:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetSpecialDistrictType.GetPrimaryBuildingType.GetKey))]"
 							}
 							state = {
 								name = "print_modifiers_line"
@@ -1719,7 +1719,7 @@ window = {
 								name = "log_holding_level"
 								duration = 0.01
 								next = "log_sickness"
-								on_finish = "[ExecuteConsoleCommand(Concatenate('HoldingLevel:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetPrimaryBuildingType.GetKey))]"
+								on_finish = "[ExecuteConsoleCommand(Concatenate('HoldingLevel:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetPrimaryDistrictType.GetPrimaryBuildingType.GetKey))]"
 							}
 							state = {
 								name = "log_sickness"
@@ -1813,7 +1813,7 @@ window = {
 								name = "print_special_building"
 								duration = 0.01
 								next = "print_modifiers_line"
-								on_finish = "[ExecuteConsoleCommand(Concatenate('SpecialBuilding:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetSpecialBuildingType.GetKey))]"
+								on_finish = "[ExecuteConsoleCommand(Concatenate('SpecialBuilding:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetSpecialDistrictType.GetPrimaryBuildingType.GetKey))]"
 							}
 							state = {
 								name = "print_modifiers_line"

@@ -1,7 +1,7 @@
-version="1.4.3"
+version="1.4.4"
 tags={
 	"Gameplay"
 	"Warfare"
 }
 name="Crusader Conflicts [Win/Linux]"
-supported_version="1.20.*"
+supported_version="1.21.*"
